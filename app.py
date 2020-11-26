@@ -33,14 +33,14 @@ df.reset_index(level=0, inplace=True)
 app = dash.Dash(__name__, external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML'])
 server = app.server
 
-app.title = "Dynamic Scheduling"
+app.title = "Adaptive Schedule"
 
 app.layout = html.Div(id='main',children=[
     dcc.Interval(id="interval-updating-graphs", interval=1000, n_intervals=0),
     html.Div(id="top-bar", className="row"),
-    html.P(children=r'Delicious \(\pi\) is inline with my goals (TODO).'),
-    html.P(children=r'$$\omega \sum_{i=1}^{n}\mathbb{E}I_i + (1 - \omega)\sum_{i=1}^{n}\mathbb{E}W_i$$',
-      style={'text-align': 'center'}),
+    # html.P(children=r'Delicious \(\pi\) is inline with my goals (TODO).'),
+    # html.P(children=r'$$\omega \sum_{i=1}^{n}\mathbb{E}I_i + (1 - \omega)\sum_{i=1}^{n}\mathbb{E}W_i$$',
+    #   style={'text-align': 'center'}),
     
     html.Div(
         className="container",
@@ -52,10 +52,12 @@ app.layout = html.Div(id='main',children=[
                     html.Div(
                         id="header-section",
                         children=[
-                            html.H4("Dynamic Appointment Schedule"),
+                            html.H4("Adaptive Schedule"),
                             html.P(
                                 "TODO"
                             ),
+                            html.P(children=r'$$\omega \sum_{i=1}^{n}\mathbb{E}I_i + (1 - \omega)\sum_{i=1}^{n}\mathbb{E}W_i$$',
+                                style={'text-align': 'center'}),
                             html.Button(
                                 "Learn more", id="learn-more-button", n_clicks=0
                             )

@@ -8,23 +8,24 @@
 
 body {
   margin: 0 !important;
-  color: #606060 !important;
+  color: #3C3C3C !important;
   font-family: "Raleway", sans-serif;
   background-color: #f9f9f9 !important;
 }
 
 #top-bar {
-  background-color: #009688;
+  background-color: #611f69;
   height: 5px;
 }
 
 #left-side-column {
   height: calc(100vh - 5px);
-  width: calc(50vh - 5px);
-  background-color: #f2f2f2;
+  width: calc(40vh - 5px);
+  color: #f9f9f9;
+  background-color: #611f69;
   margin-left: 0px;
   align-items: center;
-  padding: 1rem 2rem;
+  padding: 1rem 1rem;
 }
 
 #right-side-column {
@@ -93,7 +94,7 @@ p {
 }
 
 .closeButton:hover {
-  color: #009688 !important;
+  color: #3e1040 !important;
 }
 
 #header-section {
@@ -107,7 +108,7 @@ p {
 }
 
 #learn-more-button {
-  background-color: #009688;
+  background-color: #611f69;
   color: #ffffff;
   font-size: 13px;
   font-weight: 500;
@@ -149,7 +150,7 @@ p {
   --background-color-ellipses: #fdfdfd;
   --faded-text: #fafafa;
   --faded-text-header: #b4b4b4;
-  --selected-background: rgba(255, 65, 54, 0.2);
+  --selected-background: #611f69;
   --faded-dropdown: #f0f0f0;
   --muted: #c8c8c8;
 }
@@ -198,16 +199,16 @@ p {
 }
 
 .rc-slider-track {
-  background-color: #009688;
+  background-color: #611f69;
 }
 
 .rc-slider-dot-active,
 .rc-slider-dot,
 .rc-slider-handle {
-  border-color: #009688;
+  border-color: #611f69;
 }
 
 .rc-slider-handle:hover {
-  border-color: #009688;
+  border-color: #611f69;
 }
 
