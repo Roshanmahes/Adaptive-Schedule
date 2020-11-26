@@ -1,0 +1,213 @@
+@import url("https://fonts.googleapis.com/css?family=Roboto|Raleway");
+
+/* Remove Undo
+–––––––––––––––––––––––––––––––––––––––––––––––––– */
+._dash-undo-redo {
+  display: none;
+}
+
+body {
+  margin: 0 !important;
+  color: #606060 !important;
+  font-family: "Raleway", sans-serif;
+  background-color: #f9f9f9 !important;
+}
+
+#top-bar {
+  background-color: #009688;
+  height: 5px;
+}
+
+#left-side-column {
+  height: calc(100vh - 5px);
+  width: calc(50vh - 5px);
+  background-color: #f2f2f2;
+  margin-left: 0px;
+  align-items: center;
+  padding: 1rem 2rem;
+}
+
+#right-side-column {
+  height: calc(100vh - 5px);
+  overflow-y: scroll;
+  margin-left: 1%;
+  padding: 1rem 2rem;
+}
+
+.dash-spreadsheet-container table {
+  --accent: #1EAEDB !important;
+  --selected-background: #FF4136 !important;
+  --selected-color: #3C3C3C !important;
+}
+
+H4 {
+  font-family: "Roboto", sans-serif;
+  font-weight: 600;
+}
+
+p {
+  font-size: 16px;
+  font-weight: 300;
+}
+
+.modal {
+  display: block; /*Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1000; /* Sit on top */
+  left: 0;
+  top: 0;
+  width: 100vw; /* Full width */
+  height: 100vh; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0, 0, 0); /* Fallback color */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+.markdown-container {
+  width: 60vw;
+  margin: 10% auto;
+  padding: 10px 15px;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+}
+
+.close-container {
+  display: inline-block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.markdown-text {
+  padding: 0px 10px;
+}
+
+.closeButton {
+  padding: 0 15px;
+  font-weight: normal;
+  float: right;
+  font-size: 1.2rem;
+  border: none;
+  background-color: #f9f9f9;
+  height: 100%;
+}
+
+.closeButton:hover {
+  color: #009688 !important;
+}
+
+#header-section {
+  width: 88%;
+  margin-top: 2%;
+}
+
+.button:focus {
+  color: #ffffff;
+  border-color: #bbb;
+}
+
+#learn-more-button {
+  background-color: #009688;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 5px 20px;
+  text-transform: none;
+  line-height: 30px;
+  font-family: "Raleway", sans-serif;
+}
+
+.control-section {
+  /* width: 85%; */
+  width: 30%;
+  /* display: flex; */
+  /* flex-flow: column nowrap; */
+  padding: 5px;
+  flex-shrink: 0;
+  margin-bottom: 2%;
+}
+
+.control-element {
+  width: 500%;
+  /* font-size: 15px; */
+  padding: 10px;
+  display: flex;
+  flex-flow: row nowrap;
+}
+
+.control-element > div:nth-child(1) {
+  width: 25%;
+}
+
+#my_table {
+  border-collapse: collapse;
+  font-family: monospace;
+  --accent: blue;
+  --border: lightgrey;
+  --text-color: #3c3c3c;
+  --hover: #fdfdfd;
+  --background-color-ellipses: #fdfdfd;
+  --faded-text: #fafafa;
+  --faded-text-header: #b4b4b4;
+  --selected-background: rgba(255, 65, 54, 0.2);
+  --faded-dropdown: #f0f0f0;
+  --muted: #c8c8c8;
+}
+
+/* .dash-spreadsheet-container .dash-spreadsheet-inner my_table {
+  border-collapse: collapse;
+  font-family: monospace;
+  --accent: hotpink;
+  --border: lightgrey;
+  --text-color: #3c3c3c;
+  --hover: #fdfdfd;
+  --background-color-ellipses: #fdfdfd;
+  --faded-text: #fafafa;
+  --faded-text-header: #b4b4b4;
+  --selected-background: rgba(255, 65, 54, 0.2);
+  --faded-dropdown: #f0f0f0;
+  --muted: #c8c8c8;
+} */
+
+/* .control-element > div:nth-child(2) {
+  width: 20%;
+} */
+
+#mean{
+  width: 10%
+}
+
+#SCV{
+  width: 10%
+}
+
+#n{
+  width: 10%
+}
+
+#omega{
+  width: 10%
+}
+
+#u{
+  width: 10%
+}
+
+#u_slide{
+  width: 80%
+}
+
+.rc-slider-track {
+  background-color: #009688;
+}
+
+.rc-slider-dot-active,
+.rc-slider-dot,
+.rc-slider-handle {
+  border-color: #009688;
+}
+
+.rc-slider-handle:hover {
+  border-color: #009688;
+}
+
