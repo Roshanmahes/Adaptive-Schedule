@@ -1,5 +1,4 @@
 # imports
-import csv
 import dash
 import dash_table as dt
 import dash_core_components as dcc
