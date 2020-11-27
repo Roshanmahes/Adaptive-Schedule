@@ -6,28 +6,23 @@ import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
 from markdown_helper import markdown_popup
+import numpy as np
 import pandas as pd
+from adaptive_scheduling import Transient_IA
 
 # df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/solar.csv')
-with open(f'csv_files/SCV_1.00_omega_0.5_minima.csv','r') as csvfile:
-    reader = csv.reader(csvfile)
-    old_minima = list(reader)
 
-n = 15
-m = 0
-Delta = 0.01
+x = np.array([1.06285832, 1.38561383, 1.43545683, 1.45208582, 1.46053431,
+       1.46457131, 1.46590595, 1.46558423, 1.46396076, 1.46074191,
+       1.45502271, 1.44525078, 1.4288273 , 1.39941651, 1.33281871,
+       1.13566431])
 
-minima = [[None] * (n-1) for k in range(n-1)]
+df = pd.DataFrame({r'Patient (\(i\))': np.arange(1,len(x)+1),
+                   r'Interarrival time (\(x_i\))': [f'{np.round(i,2):.2f}' for i in x],
+                   r'Arrival time (\(t_i\))': [f'{np.round(i,2):.2f}' for i in np.cumsum(x)]})
 
-for i in range(n-1):
-    for k in range(i+1):
-        minima[i][k] = f'{round(eval(old_minima[i][k])[m] * Delta, 2):.2f}'
-        
-# minima
-df = pd.DataFrame(minima, index=range(1,15), columns=range(1,15)).fillna('')
-df.index.name = 'i'
-df.reset_index(level=0, inplace=True)
-# print(df.to_dict('records'))
+# df = df.to_dict('records')
+
 
 # main app
 app = dash.Dash(__name__, external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML'])
@@ -37,11 +32,12 @@ app.title = "Adaptive Schedule"
 
 app.layout = html.Div(id='main',children=[
     dcc.Interval(id="interval-updating-graphs", interval=1000, n_intervals=0),
-    html.Div(id="top-bar", className="row"),
+    html.Div(id="top-bar"),
     # html.P(children=r'Delicious \(\pi\) is inline with my goals (TODO).'),
     # html.P(children=r'$$\omega \sum_{i=1}^{n}\mathbb{E}I_i + (1 - \omega)\sum_{i=1}^{n}\mathbb{E}W_i$$',
     #   style={'text-align': 'center'}),
     
+
     html.Div(
         className="container",
         children=[
@@ -63,74 +59,38 @@ app.layout = html.Div(id='main',children=[
                             )
                         ],
                     ),
-                    html.Div(
-                        className="control-section",
-                        children=[
-                            html.Div(
-                                className="control-element",
-                                children=[
-                                    html.Div(children=["mean"]),
-                                    dcc.Input(id="mean",
-                                              min=0.01,
-                                              value=1,
-                                              type="number"
-                                    ),
-                                ],
-                            ),
-                            html.Div(
-                                className="control-element",
-                                children=[
-                                    html.Div(children=["SCV"]),
-                                    dcc.Input(id="SCV",
-                                              min=0.2,
-                                              max=1.5,
-                                              step=0.01,
-                                              value=1,
-                                              type="number"
-                                    ),
-                                ],
-                            ),
-                            html.Div(
-                                className="control-element",
-                                children=[
-                                    html.Div(children=[r"\(n\)"]),
-                                    dcc.Input(id="n",
-                                              min=1,
-                                              max=15,
-                                              step=1,
-                                              value=15,
-                                              type="number"
-                                    ),
-                                ],
-                            ),
-                            html.Div(
-                                className="control-element",
-                                children=[
-                                    html.Div(children=[r"\(\omega\)"]),
-                                    dcc.Input(id="omega",
-                                              min=0.1,
-                                              max=0.9,
-                                              step=0.1,
-                                              value=0.5,
-                                              type="number"
-                                    ),
-                                ],
-                            ),
-                            html.Div(
-                                className="control-element",
-                                children=[
-                                    html.Div(children=[r"\(u\)"]),
-                                    dcc.Input(id="u",
-                                              min=0,
-                                              max=5,
-                                              step=0.1,
-                                              value=0,
-                                              type="number"
-                                    ),
-                                ],
-                            ),
-                        ],
-                    ),
+
+                    html.Table(
+                        id="my_table",
+                        children=
+                        # Header
+                        [html.Tr([html.Th('Parameter'), html.Th('Value'), html.Th('Range'), html.Th('Explanation')])] +
+                        # Body
+                        [html.Tr([html.Td(r'\(\mathbb{E}B \)'),
+                            html.Div(dcc.Input(id='mean', min=0.01, value=1, type='number')),
+                            html.Td(r'\([0,\infty)\)'),
+                            html.Td('mean')])] +
+                        [html.Tr([html.Td(r'\(\mathbb{S}(B)\)'),
+                            html.Div(dcc.Input(id='SCV', min=0.01, max=2, step=0.01, value=1, type='number')),
+                            html.Td(r'\([0.01,2]\)'),
+                            html.Td('SCV (squared coefficient of variation)')])] +
+                        [html.Tr([html.Td(r'\(\omega\)'),
+                            dcc.Input(id='omega', min=0.1, max=0.9, step=0.1, value=0.5, type='number'),
+                            html.Td(r'\((0,1)\)'),
+                            html.Td('importance idle time')])] +
+                        [html.Tr([html.Td(r'\(n\)'),
+                            dcc.Input(id='n', min=1, max=30, step=1, value=15, type='number'),
+                            html.Td(r'\([1,30]\)'),
+                            html.Td('#clients to be scheduled')])] +
+                        [html.Tr([html.Td(r'\(\# wis\)'),
+                            dcc.Input(id='wis', min=0, max=30, step=1, value=0, type='number'),
+                            html.Td(r'\([0,30]\)'),
+                            html.Td('#clients already waiting in system')])] + 
+                        [html.Tr([html.Td(r'\(u\)'),
+                            dcc.Input(id='u', min=0, max=5, step=0.01, value=0, type='number'),
+                            html.Td(r'\([0,\infty)\)'),
+                            html.Td('service time client in service (so far)')])], style={'width': '100%'}
+                        ),
                 ]
             ),
             html.Div(
@@ -138,31 +98,9 @@ app.layout = html.Div(id='main',children=[
                 className="dynamic schedule",
                 children=[
                     html.Div(
-                                # className="control-element",
-                                children=[
-                                    html.Div(
-                                        children=[r"\(u\) (slider)"] # served time client in service at time 0
-                                    ),
-                                    html.Div(
-                                        dcc.Slider(
-                                            id="u_slide",
-                                            min=0,
-                                            max=5,
-                                            step=0.1,
-                                            marks={
-                                                i: f"{i}"
-                                                for i in [i for i in range(6)]
-                                            },
-                                            value=0,
-                                            updatemode="drag",
-                                        ),
-                                    ),
-                                ],
-                            ),
-                    html.Div(
                         dt.DataTable(
-                            id='my_table',
-                            columns=[{"name": ["k", k], "id": k} for k in df.columns],
+                            id='schedule_df',
+                            columns=[{"name": ["Appointment Schedule", k], "id": k} for k in df.columns],
                             data=df.to_dict('records'),
                             merge_duplicate_headers=True,
                             # style_header={'textAlign': 'center'},
@@ -174,25 +112,23 @@ app.layout = html.Div(id='main',children=[
                                     'background-color': '#FAFAFA'
                                 }
                             ],
-                            # style_cell={
-                            #     # 'backgroundColor': 'rgb(50, 50, 50)',
-                            #     'accent': 'blue',
-                            #     'selected-background': 'rgba(255, 65, 54, 0.2)',
-                            # },
-                            # css= [{'selector': '.dash-cell--selected *, .dash-cell.focused *', 'rule': 'background-color: blue; color: red; border-color: green; accent: blue'}]
-                        # css= [{'selector': 'tr:hover', 'rule': 'background-color: #009688;'}],
-                        # css=[{ # override default css for selected/focused table cells
-                        #     'selector': '.td.cell--selected *, td.focused *',
-                        #     'rule': "border: lightgrey; color: #3c3c3c; hover: #3c3c3c" #; --background-color-ellipses: #fdfdfd; --faded-text: #fafafa; --faded-text-header: #b4b4b4; --selected-background: rgba(255, 65, 54, 0.2); --faded-dropdown: #f0f0f0; --muted: #c8c8c8;"
-                        #     # 'background-color: rgba(0, 150, 136, 0.1);'
-                        # # }, {
-                        #     # 'selector': 'td.cell--selected *, td.focused *',
-                        #     # 'rule': 'color: rgba(0, 150, 136, 0.1) !important;'
-                        # }],
                     ),
                     ),
-                    
-                ],
+
+                        # html.Div([
+                        #     html.H3("Column 2"),
+                        #     dcc.Graph(
+                        #     id="graph high",
+                        #     figure={
+                        #         "data": [df.to_dict('records')],
+                        #         "layout": {
+                        #             "title": "Graph 2"
+                        #         }
+                        #     }, className="graph"
+                        #     )
+                        # ], className="graphic"),
+
+                    ],
             ),
         ],
     ),
@@ -216,57 +152,29 @@ def update_click_output(button_click, close_click):
         return {"display": "none"}
 
 
-@app.callback(
-    [Output("u","value")],
-    [Input("u_slide","value"),],
-)
-def update_shocks(value):
-    return [value]
-
-@app.callback(
-    [Output("u_slide","value")],
-    [Input("u","value"),],
-)
-def update_shocks2(value):
-    return [value]
-
 # TODO: update table
 @app.callback(
-    [Output("my_table", "data")],
-    [Input("omega", "value"), Input("SCV", "value"), Input("u", "value"), Input("mean", "value"), Input("n", "value")], ## TODO
+    [Output('schedule_df', 'data')],
+    [Input('mean', 'value'), Input('SCV', 'value'), Input('omega', 'value'),
+     Input('n', 'value'), Input('wis', 'value'), Input('u', 'value')],
 )
-def updateTable(omega, SCV, u, mean, n):
+def updateTable(mean, SCV, omega, n, wis, u):
 
-    with open(f'csv_files/SCV_{SCV:.2f}_omega_{omega}_minima.csv','r') as csvfile:
-        reader = csv.reader(csvfile)
-        old_minima = list(reader)
+    N = n + wis + 1
+    x, _ = Transient_IA(SCV, u, omega, N, [], wis)
+    x = x * mean
 
-    print(n)
-    # n = 15
-    Delta = 0.01
-    m = int(u/Delta)
-    
-    minima = [[None] * (n-1) for k in range(n-1)]
+    df = pd.DataFrame({r'Patient (\(i\))': np.arange(1,len(x)+1),
+                   r'Interarrival time (\(x_i\))': [f'{np.round(i,2):.2f}' for i in x],
+                   r'Arrival time (\(t_i\))': [f'{np.round(i,2):.2f}' for i in np.cumsum(x)]})
 
-    for i in range(n-1):
-        
-        x = 15 - n
-        for k in range(i+1):
-            minima[i][k] = f'{round(eval(old_minima[x+i][k])[m] * mean * Delta, 2):.2f}'
-            
-    # minima
-    df = pd.DataFrame(minima, index=range(1,n), columns=range(1,n)).fillna('')
-    df.index.name = 'i'
-    df.reset_index(level=0, inplace=True)
-    # df.
-    # df.reset_index(level=1, inplace=True)
-    print(df.columns)
+    # print([df.to_dict('records')])
 
     return [df.to_dict('records')]
 
 
 if __name__ == '__main__':
-  app.run_server()
+  app.run_server() #debug=True)
 
 
 # app = dash.Dash(__name__)

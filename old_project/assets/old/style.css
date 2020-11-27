@@ -8,23 +8,24 @@
 
 body {
   margin: 0 !important;
-  color: #000000 !important;
+  color: #3C3C3C !important;
   font-family: "Raleway", sans-serif;
   background-color: #f9f9f9 !important;
 }
 
 #top-bar {
-  background-color: #242582;
+  background-color: #f64c72;
   height: 5px;
 }
 
 #left-side-column {
-  height: calc(100vh);
-  width: 45%;
-  color: #000000;
-  background-color: #dce9f9;
+  height: calc(100vh - 5px);
+  width: calc(40vh - 5px);
+  color: #f9f9f9;
+  background-color: #242582;
+  margin-left: 0px;
   align-items: left;
-  padding: 10px 2% 10px 2%;
+  padding: 1rem 1rem;
 }
 
 #right-side-column {
@@ -37,7 +38,7 @@ body {
 .dash-spreadsheet-container table {
   --accent: #1EAEDB !important;
   --selected-background: #1EAEDB !important;
-  --selected-color: #080707 !important;
+  --selected-color: #3C3C3C !important;
 }
 
 H4 {
@@ -139,14 +140,11 @@ p {
   width: 25%;
 }
 
-
-
-#my_table2 {
-  /* border: 1px solid black; */
+#my_table {
   border-collapse: collapse;
   font-family: monospace;
   --accent: blue;
-  --border: black;
+  --border: lightgrey;
   --text-color: #3c3c3c;
   --hover: #fdfdfd;
   --background-color-ellipses: #fdfdfd;
@@ -156,7 +154,6 @@ p {
   --faded-dropdown: #f0f0f0;
   --muted: #c8c8c8;
 }
-
 
 /* .dash-spreadsheet-container .dash-spreadsheet-inner my_table {
   border-collapse: collapse;
@@ -178,46 +175,40 @@ p {
 } */
 
 #mean{
-  width: 100%;
-  margin-top: 5%;
-  margin-bottom: 5%;
-  height: 90%;
+  width: 10%
 }
 
 #SCV{
-  /* border: solid #ccc 10px; */
-  box-sizing: border-box;
-  width: 100%;
-  margin-top: 5%;
-  margin-bottom: 5%;
-  height: 90%;
-}
-
-#omega{
-  width: 100%;
-  margin-top: 5%;
-  margin-bottom: 5%;
-  height: 90%;
+  width: 10%
 }
 
 #n{
-  width: 100%;
-  margin-top: 5%;
-  margin-bottom: 5%;
-  height: 90%;
+  width: 10%
 }
 
-#wis{
-  width: 100%;
-  margin-top: 5%;
-  margin-bottom: 5%;
-  height: 90%;
+#omega{
+  width: 10%
 }
 
 #u{
-  width: 100%;
-  margin-top: 5%;
-  margin-bottom: 5%;
-  height: 90%;
+  width: 10%
+}
+
+#u_slide{
+  width: 80%
+}
+
+.rc-slider-track {
+  background-color: #611f69;
+}
+
+.rc-slider-dot-active,
+.rc-slider-dot,
+.rc-slider-handle {
+  border-color: #611f69;
+}
+
+.rc-slider-handle:hover {
+  border-color: #611f69;
 }
 
