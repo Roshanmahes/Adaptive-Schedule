@@ -37,7 +37,7 @@ body {
 .dash-spreadsheet-container table {
   --accent: #dce9f9 !important;
   --selected-background: #dce9f9 !important;
-  --selected-color: #080707 !important;
+  --selected-color: #000000 !important;
 }
 
 H4 {
