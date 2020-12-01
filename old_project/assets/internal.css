@@ -35,8 +35,8 @@ body {
 }
 
 .dash-spreadsheet-container table {
-  --accent: #1EAEDB !important;
-  --selected-background: #1EAEDB !important;
+  --accent: #dce9f9 !important;
+  --selected-background: #dce9f9 !important;
   --selected-color: #080707 !important;
 }
 
