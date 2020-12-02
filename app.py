@@ -3,7 +3,7 @@ import dash
 import dash_table as dt
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 from markdown_helper import markdown_popup
 import numpy as np
 import pandas as pd
@@ -11,14 +11,14 @@ from adaptive_scheduling import Transient_IA
 
 # df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/solar.csv')
 
-x = np.array([1.06285832, 1.38561383, 1.43545683, 1.45208582, 1.46053431,
-       1.46457131, 1.46590595, 1.46558423, 1.46396076, 1.46074191,
-       1.45502271, 1.44525078, 1.4288273 , 1.39941651, 1.33281871,
-       1.13566431])
+# x = np.array([0, 1.06285832, 1.38561383, 1.43545683, 1.45208582, 1.46053431,
+#        1.46457131, 1.46590595, 1.46558423, 1.46396076, 1.46074191,
+#        1.45502271, 1.44525078, 1.4288273 , 1.39941651, 1.33281871,
+#        1.13566431])
 
-df = pd.DataFrame({r'Patient (\(i\))': np.arange(1,len(x)+1),
-                   r'Interarrival time (\(x_i\))': [f'{np.round(i,2):.2f}' for i in x],
-                   r'Arrival time (\(t_i\))': [f'{np.round(i,2):.2f}' for i in np.cumsum(x)]})
+# df = pd.DataFrame({r'Patient (\(i\))': np.arange(1,len(x)+1),
+#                    r'Interarrival time (\(x_i\))': [f'{np.round(i,2):.2f}' for i in x],
+#                    r'Arrival time (\(t_i\))': [f'{np.round(i,2):.2f}' for i in np.cumsum(x)]})
 
 # df = df.to_dict('records')
 
@@ -76,7 +76,7 @@ app.layout = html.Div(id='main',children=[
                         [html.Tr([html.Td(r'\(\omega\)'),
                             dcc.Input(id='omega', min=0.1, max=0.9, step=0.1, value=0.5, type='number'),
                             html.Td(r'\((0,1)\)'),
-                            html.Td('importance idle time')])] +
+                            html.Td('importance idle time : waiting time')])] +
                         [html.Tr([html.Td(r'\(n\)'),
                             dcc.Input(id='n', min=1, max=30, step=1, value=15, type='number'),
                             html.Td(r'\([1,30]\)'),
@@ -90,6 +90,8 @@ app.layout = html.Div(id='main',children=[
                             html.Td(r'\([0,\infty)\)'),
                             html.Td('service time client in service (so far)')])], style={'width': '100%'}
                         ),
+
+                        html.Button(id='submit-button', n_clicks=0, children='Compute Appointment Schedule'),
                 ]
             ),
             html.Div(
@@ -99,8 +101,8 @@ app.layout = html.Div(id='main',children=[
                     html.Div(
                         dt.DataTable(
                             id='schedule_df',
-                            columns=[{"name": ["Appointment Schedule", k], "id": k} for k in df.columns],
-                            data=df.to_dict('records'),
+                            # columns=[{"name": ["Appointment Schedule", k], "id": k} for k in df.columns],
+                            # data=df.to_dict('records'),
                             merge_duplicate_headers=True,
                             # style_header={'textAlign': 'center'},
                             style_cell={'textAlign': 'center'},
@@ -154,22 +156,32 @@ def update_click_output(button_click, close_click):
 # TODO: update table
 @app.callback(
     [Output('schedule_df', 'data')],
-    [Input('mean', 'value'), Input('SCV', 'value'), Input('omega', 'value'),
-     Input('n', 'value'), Input('wis', 'value'), Input('u', 'value')],
+    [Input('submit-button', 'n_clicks')],
+    [State('mean', 'value'), State('SCV', 'value'), State('omega', 'value'),
+     State('n', 'value'), State('wis', 'value'), State('u', 'value')],
+     
 )
-def updateTable(mean, SCV, omega, n, wis, u):
+def updateTable(n_clicks, mean, SCV, omega, n, wis, u):
 
-    N = n + wis + 1
-    x, _ = Transient_IA(SCV, u, omega, N, [], wis)
+    N = n + wis
+
+    if not u and not wis:
+        N = N - 1
+        
+        x, y = Transient_IA(SCV, u, omega, N, [], wis)
+        x = np.pad(x, (1,0))
+    else:
+        x, y = Transient_IA(SCV, u, omega, N, [], wis)
+
     x = x * mean
 
     df = pd.DataFrame({r'Patient (\(i\))': np.arange(1,len(x)+1),
-                   r'Interarrival time (\(x_i\))': [f'{np.round(i,2):.2f}' for i in x],
-                   r'Arrival time (\(t_i\))': [f'{np.round(i,2):.2f}' for i in np.cumsum(x)]})
+                   r'Interarrival time (\(x_i\))': [f'{np.round(i,4):.4f}' for i in x],
+                   r'Arrival time (\(t_i\))': [f'{np.round(i,4):.4f}' for i in np.cumsum(x)]})
 
     # print([df.to_dict('records')])
 
-    return [df.to_dict('records')]
+    return [df.to_dict('records'), y]
 
 
 if __name__ == '__main__':
