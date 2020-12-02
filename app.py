@@ -24,8 +24,7 @@ df = pd.DataFrame({r'Patient (\(i\))': np.arange(1,len(x)+1),
 
 
 # main app
-app = dash.Dash(__name__, external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML'],
-            update_title = 'Updating Schedule...')
+app = dash.Dash(__name__, external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML'])
 server = app.server
 
 app.title = "Adaptive Schedule"
