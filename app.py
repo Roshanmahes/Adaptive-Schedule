@@ -30,112 +30,116 @@ server = app.server
 app.title = "Adaptive Schedule"
 # app.update_title = 'Updating Schedule...'
 
-app.layout = html.Div(id='main',children=[
-    dcc.Interval(id="interval-updating-graphs", interval=1000, n_intervals=0),
-    html.Div(id="top-bar"),
-    # html.P(children=r'Delicious \(\pi\) is inline with my goals (TODO).'),
-    # html.P(children=r'$$\omega \sum_{i=1}^{n}\mathbb{E}I_i + (1 - \omega)\sum_{i=1}^{n}\mathbb{E}W_i$$',
-    #   style={'text-align': 'center'}),
+def app_layout():
     
+    app_layout = html.Div(id='main',children=[
+        dcc.Interval(id="interval-updating-graphs", interval=1000, n_intervals=0),
+        html.Div(id="top-bar"),
+        # html.P(children=r'Delicious \(\pi\) is inline with my goals (TODO).'),
+        # html.P(children=r'$$\omega \sum_{i=1}^{n}\mathbb{E}I_i + (1 - \omega)\sum_{i=1}^{n}\mathbb{E}W_i$$',
+        #   style={'text-align': 'center'}),
 
-    html.Div(
-        className="container",
-        children=[
-            html.Div(
-                id="left-side-column",
-                className="eight columns",
-                children=[
-                    html.Div(
-                        id="header-section",
-                        children=[
-                            html.H4("Adaptive Schedule"),
-                            html.P(
-                                "TODO"
-                            ),
-                            html.P(children=r'$$\omega \sum_{i=1}^{n}\mathbb{E}I_i + (1 - \omega)\sum_{i=1}^{n}\mathbb{E}W_i$$',
-                                style={'text-align': 'center'}),
-                            html.Button(
-                                "Learn more", id="learn-more-button", n_clicks=0
-                            )
-                        ],
-                    ),
 
-                    html.Table(
-                        id="my_table",
-                        children=
-                        # Header
-                        [html.Tr([html.Th('Parameter'), html.Th('Value'), html.Th('Range'), html.Th('Explanation')])] +
-                        # Body
-                        [html.Tr([html.Td(r'\(\mathbb{E}B \)'),
-                            html.Div(dcc.Input(id='mean', min=0.01, value=1, type='number')),
-                            html.Td(r'\([0,\infty)\)'),
-                            html.Td('mean')])] +
-                        [html.Tr([html.Td(r'\(\mathbb{S}(B)\)'),
-                            html.Div(dcc.Input(id='SCV', min=0.01, max=2, step=0.01, value=1, type='number')),
-                            html.Td(r'\([0.01,2]\)'),
-                            html.Td('SCV (squared coefficient of variation)')])] +
-                        [html.Tr([html.Td(r'\(\omega\)'),
-                            dcc.Input(id='omega', min=0.1, max=0.9, step=0.1, value=0.5, type='number'),
-                            html.Td(r'\((0,1)\)'),
-                            html.Td('importance idle time : waiting time')])] +
-                        [html.Tr([html.Td(r'\(n\)'),
-                            dcc.Input(id='n', min=1, max=30, step=1, value=15, type='number'),
-                            html.Td(r'\([1,30]\)'),
-                            html.Td('#clients to be scheduled')])] +
-                        [html.Tr([html.Td(r'\(\# wis\)'),
-                            dcc.Input(id='wis', min=0, max=30, step=1, value=0, type='number'),
-                            html.Td(r'\([0,30]\)'),
-                            html.Td('#clients already waiting in system')])] + 
-                        [html.Tr([html.Td(r'\(u\)'),
-                            dcc.Input(id='u', min=0, max=5, step=0.01, value=0, type='number'),
-                            html.Td(r'\([0,\infty)\)'),
-                            html.Td('service time client in service (so far)')])], style={'width': '100%'}
+        html.Div(
+            className="container",
+            children=[
+                html.Div(
+                    id="left-side-column",
+                    className="eight columns",
+                    children=[
+                        html.Div(
+                            id="header-section",
+                            children=[
+                                html.H4("Adaptive Schedule"),
+                                html.P(
+                                    "TODO"
+                                ),
+                                html.P(children=r'$$\omega \sum_{i=1}^{n}\mathbb{E}I_i + (1 - \omega)\sum_{i=1}^{n}\mathbb{E}W_i$$',
+                                    style={'text-align': 'center'}),
+                                html.Button(
+                                    "Learn more", id="learn-more-button", n_clicks=0
+                                )
+                            ],
                         ),
 
-                        html.Button(id='submit-button', n_clicks=0, children='Compute Appointment Schedule'),
-                ]
-            ),
-            html.Div(
-                id="right-side-column",
-                className="dynamic schedule",
-                children=[
-                    html.Div(
-                        dt.DataTable(
-                            id='schedule_df',
-                            columns=[{"name": ["Appointment Schedule", k], "id": k} for k in df.columns],
-                            data=df.to_dict('records'),
-                            merge_duplicate_headers=True,
-                            style_header={'textAlign': 'center'},
-                            style_cell={'textAlign': 'center'},
-                            style_cell_conditional=[
-                                {
-                                    'if': {'column_id': 'i'},
-                                    # 'textAlign': 'right',
-                                    'background-color': '#FAFAFA'
-                                }
-                            ],
-                    ),
-                    ),
+                        html.Table(
+                            id="my_table",
+                            children=
+                            # Header
+                            [html.Tr([html.Th('Parameter'), html.Th('Value'), html.Th('Range'), html.Th('Explanation')])] +
+                            # Body
+                            [html.Tr([html.Td(r'\(\mathbb{E}B \)'),
+                                html.Div(dcc.Input(id='mean', min=0.01, value=1, type='number')),
+                                html.Td(r'\([0,\infty)\)'),
+                                html.Td('mean')])] +
+                            [html.Tr([html.Td(r'\(\mathbb{S}(B)\)'),
+                                html.Div(dcc.Input(id='SCV', min=0.01, max=2, step=0.01, value=1, type='number')),
+                                html.Td(r'\([0.01,2]\)'),
+                                html.Td('SCV (squared coefficient of variation)')])] +
+                            [html.Tr([html.Td(r'\(\omega\)'),
+                                dcc.Input(id='omega', min=0.1, max=0.9, step=0.1, value=0.5, type='number'),
+                                html.Td(r'\((0,1)\)'),
+                                html.Td('importance idle time : waiting time')])] +
+                            [html.Tr([html.Td(r'\(n\)'),
+                                dcc.Input(id='n', min=1, max=30, step=1, value=15, type='number'),
+                                html.Td(r'\([1,30]\)'),
+                                html.Td('#clients to be scheduled')])] +
+                            [html.Tr([html.Td(r'\(\# wis\)'),
+                                dcc.Input(id='wis', min=0, max=30, step=1, value=0, type='number'),
+                                html.Td(r'\([0,30]\)'),
+                                html.Td('#clients already waiting in system')])] + 
+                            [html.Tr([html.Td(r'\(u\)'),
+                                dcc.Input(id='u', min=0, max=5, step=0.01, value=0, type='number'),
+                                html.Td(r'\([0,\infty)\)'),
+                                html.Td('service time client in service (so far)')])], style={'width': '100%'}
+                            ),
 
-                        # html.Div([
-                        #     html.H3("Column 2"),
-                        #     dcc.Graph(
-                        #     id="graph high",
-                        #     figure={
-                        #         "data": [df.to_dict('records')],
-                        #         "layout": {
-                        #             "title": "Graph 2"
-                        #         }
-                        #     }, className="graph"
-                        #     )
-                        # ], className="graphic"),
+                            html.Button(id='submit-button', n_clicks=0, children='Compute Appointment Schedule'),
+                    ]
+                ),
+                html.Div(
+                    id="right-side-column",
+                    className="dynamic schedule",
+                    children=[
+                        html.Div(
+                            dt.DataTable(
+                                id='schedule_df',
+                                columns=[{"name": ["Appointment Schedule", k], "id": k} for k in df.columns],
+                                data=df.to_dict('records'),
+                                merge_duplicate_headers=True,
+                                style_header={'textAlign': 'center'},
+                                style_cell={'textAlign': 'center'},
+                                style_cell_conditional=[
+                                    {
+                                        'if': {'column_id': 'i'},
+                                        # 'textAlign': 'right',
+                                        'background-color': '#FAFAFA'
+                                    }
+                                ],
+                        ),
+                        ),
 
-                    ],
-            ),
-        ],
-    ),
-    markdown_popup(),
-])
+                            # html.Div([
+                            #     html.H3("Column 2"),
+                            #     dcc.Graph(
+                            #     id="graph high",
+                            #     figure={
+                            #         "data": [df.to_dict('records')],
+                            #         "layout": {
+                            #             "title": "Graph 2"
+                            #         }
+                            #     }, className="graph"
+                            #     )
+                            # ], className="graphic"),
+
+                        ],
+                ),
+            ],
+        ),
+        markdown_popup(),
+        ])
+    
+    return app_layout
 
 # Learn more popup
 @app.callback(
@@ -165,14 +169,15 @@ def update_click_output(button_click, close_click):
 def updateTable(n_clicks, mean, SCV, omega, n, wis, u):
 
     N = n + wis
+    tol = None if N < 15 else 1e-4
 
     if not u and not wis:
         N = N - 1
         
-        x, y = Transient_IA(SCV, u, omega, N, [], wis)
+        x, y = Transient_IA(SCV, u, omega, N, [], wis, tol)
         x = np.pad(x, (1,0))
     else:
-        x, y = Transient_IA(SCV, u, omega, N, [], wis)
+        x, y = Transient_IA(SCV, u, omega, N, [], wis, tol)
 
     x = x * mean
 
@@ -184,6 +189,7 @@ def updateTable(n_clicks, mean, SCV, omega, n, wis, u):
 
     return df.to_dict('records')
 
+app.layout = app_layout
 
 if __name__ == '__main__':
   app.run_server() #debug=True)

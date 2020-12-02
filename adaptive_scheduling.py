@@ -126,7 +126,7 @@ def Transient_EIEW(x, alpha_start, alpha, Sn, Sn_inv, omega, wis):
     return cost
 
 
-def Transient_IA(SCV, u, omega, N, x0, wis=0):
+def Transient_IA(SCV, u, omega, N, x0, wis=0, tol=1e-4):
     """
     Computes the optimal schedule.
     wis = waiting in system.
@@ -139,12 +139,12 @@ def Transient_IA(SCV, u, omega, N, x0, wis=0):
     
     # minimization
     if not x0:
-        x0 = np.array([1.5] * (N - wis))
+        x0 = np.array([1.5 + wis] + [1.5] * (N - wis - 1))
         
     Trans_EIEW = lambda x: Transient_EIEW(x, alpha_start, alpha, Sn, Sn_inv, omega, wis)
     lin_cons = LinearConstraint(np.eye(N - wis), 0, np.inf)
         
-    optimization = minimize(Trans_EIEW, x0, constraints=lin_cons, method='SLSQP', tol=1e-4)
+    optimization = minimize(Trans_EIEW, x0, constraints=lin_cons, method='SLSQP', tol=tol)
     x = optimization.x
     fval = optimization.fun
         
