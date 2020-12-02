@@ -11,23 +11,25 @@ from adaptive_scheduling import Transient_IA
 
 # df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/solar.csv')
 
-# x = np.array([0, 1.06285832, 1.38561383, 1.43545683, 1.45208582, 1.46053431,
-#        1.46457131, 1.46590595, 1.46558423, 1.46396076, 1.46074191,
-#        1.45502271, 1.44525078, 1.4288273 , 1.39941651, 1.33281871,
-#        1.13566431])
+x = np.array([0, 1.06285832, 1.38561383, 1.43545683, 1.45208582, 1.46053431,
+       1.46457131, 1.46590595, 1.46558423, 1.46396076, 1.46074191,
+       1.45502271, 1.44525078, 1.4288273 , 1.39941651, 1.33281871,
+       1.13566431])
 
-# df = pd.DataFrame({r'Patient (\(i\))': np.arange(1,len(x)+1),
-#                    r'Interarrival time (\(x_i\))': [f'{np.round(i,2):.2f}' for i in x],
-#                    r'Arrival time (\(t_i\))': [f'{np.round(i,2):.2f}' for i in np.cumsum(x)]})
+df = pd.DataFrame({r'Patient (\(i\))': np.arange(1,len(x)+1),
+                   r'Interarrival time (\(x_i\))': [f'{np.round(i,4):.4f}' for i in x],
+                   r'Arrival time (\(t_i\))': [f'{np.round(i,4):.4f}' for i in np.cumsum(x)]})
 
 # df = df.to_dict('records')
 
 
 # main app
-app = dash.Dash(__name__, external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML'])
+app = dash.Dash(__name__, external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML'],
+            update_title = 'Updating Schedule...')
 server = app.server
 
 app.title = "Adaptive Schedule"
+# app.update_title = 'Updating Schedule...'
 
 app.layout = html.Div(id='main',children=[
     dcc.Interval(id="interval-updating-graphs", interval=1000, n_intervals=0),
@@ -101,10 +103,10 @@ app.layout = html.Div(id='main',children=[
                     html.Div(
                         dt.DataTable(
                             id='schedule_df',
-                            # columns=[{"name": ["Appointment Schedule", k], "id": k} for k in df.columns],
-                            # data=df.to_dict('records'),
+                            columns=[{"name": ["Appointment Schedule", k], "id": k} for k in df.columns],
+                            data=df.to_dict('records'),
                             merge_duplicate_headers=True,
-                            # style_header={'textAlign': 'center'},
+                            style_header={'textAlign': 'center'},
                             style_cell={'textAlign': 'center'},
                             style_cell_conditional=[
                                 {
@@ -181,7 +183,7 @@ def updateTable(n_clicks, mean, SCV, omega, n, wis, u):
 
     # print([df.to_dict('records')])
 
-    return [df.to_dict('records'), y]
+    return df.to_dict('records')
 
 
 if __name__ == '__main__':
