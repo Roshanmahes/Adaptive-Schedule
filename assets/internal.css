@@ -11,6 +11,7 @@ body {
   color: #000000 !important;
   font-family: "Raleway", sans-serif;
   background-color: #f9f9f9 !important;
+  overflow-y: hidden;
 }
 
 #top-bar {

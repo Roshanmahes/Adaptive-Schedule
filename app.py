@@ -9,29 +9,33 @@ import numpy as np
 import pandas as pd
 from adaptive_scheduling import Transient_IA
 import plotly.graph_objs as go
+import plotly.io as pio
 
-# df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/solar.csv')
+pio.templates.default = 'plotly_white'
 
-x = np.array([0, 1.06285832, 1.38561383, 1.43545683, 1.45208582, 1.46053431,
-       1.46457131, 1.46590595, 1.46558423, 1.46396076, 1.46074191,
-       1.45502271, 1.44525078, 1.4288273 , 1.39941651, 1.33281871,
-       1.13566431])
 
-df = pd.DataFrame({r'Patient (\(i\))': np.arange(1,len(x)+1),
-                   r'Interarrival time (\(x_i\))': [f'{np.round(i,4):.4f}' for i in x],
-                   r'Arrival time (\(t_i\))': [f'{np.round(i,4):.4f}' for i in np.cumsum(x)]})
-
+# initial table & figure
+df = pd.DataFrame({r'Client (\(i\))': [''],
+                   r'Interarrival time (\(x_i\))': ['Computing appointment schedule...'],
+                   r'Arrival time (\(t_i\))': ['']})
 df = df.to_dict('records')
 
+no_fig = {
+    'layout': {
+        'xaxis': {'visible': False},
+        'yaxis': {'visible': False},
+        'paper_bgcolor': 'rgba(0,0,0,0)',
+        'plot_bgcolor': 'rgba(0,0,0,0)'
+    }
+}
+
+columns = [{'name': [f'Appointment Schedule', k], 'id': k} for k in df[0].keys()]
 
 # main app
 # app = dash.Dash(__name__, external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML'])
-
 app = dash.Dash(__name__, external_scripts=['https://cdn.jsdelivr.net/npm/mathjax@2.7.8/MathJax.js?config=TeX-MML-AM_CHTML'])
-server = app.server
-
 app.title = "Adaptive Schedule"
-# app.update_title = 'Updating Schedule...'
+server = app.server
 
 def app_layout():
     
@@ -75,20 +79,20 @@ def app_layout():
                                 html.Td(r'\([0,\infty)\)'),
                                 html.Td('mean')])] +
                             [html.Tr([html.Td(r'\(\mathbb{S}(B)\)'),
-                                html.Div(dcc.Input(id='SCV', min=0.01, max=2, step=0.01, value=1, type='number')),
+                                html.Div(dcc.Input(id='SCV', min=0.01, max=2, value=0.5, type='number')),
                                 html.Td(r'\([0.01,2]\)'),
                                 html.Td('SCV (squared coefficient of variation)')])] +
                             [html.Tr([html.Td(r'\(\omega\)'),
-                                dcc.Input(id='omega', min=0.1, max=0.9, step=0.1, value=0.5, type='number'),
+                                dcc.Input(id='omega', min=0.1, max=0.9, value=0.5, type='number'),
                                 html.Td(r'\((0,1)\)'),
                                 html.Td('importance idle time : waiting time')])] +
                             [html.Tr([html.Td(r'\(n\)'),
-                                dcc.Input(id='n', min=1, max=30, step=1, value=15, type='number'),
-                                html.Td(r'\([1,30]\)'),
+                                dcc.Input(id='n', min=1, max=25, step=1, value=15, type='number'),
+                                html.Td(r'\([1,25]\)'),
                                 html.Td('#clients to be scheduled')])] +
                             [html.Tr([html.Td(r'\(\# wis\)'),
-                                dcc.Input(id='wis', min=0, max=30, step=1, value=0, type='number'),
-                                html.Td(r'\([0,30]\)'),
+                                dcc.Input(id='wis', min=0, max=10, step=1, value=0, type='number'),
+                                html.Td(r'\([0,10]\)'),
                                 html.Td('#clients already waiting in system')])] + 
                             [html.Tr([html.Td(r'\(u\)'),
                                 dcc.Input(id='u', min=0, max=5, step=0.01, value=0, type='number'),
@@ -106,42 +110,31 @@ def app_layout():
                         html.Div(
                             dt.DataTable(
                                 id='schedule_df',
-                                columns=[{"name": ["Appointment Schedule", k], "id": k} for k in df[0].keys()],
-                                # columns=[{"name": ["Appointment Schedule", k], "id": k} for k in df.columns],
-                                data=df, #.to_dict('records'),
+                                columns=columns,
+                                # columns=[{"name": [f"Appointment Schedule (Cost: {y})", k], "id": k} for k in df[0].keys()],
+                                data=df,
                                 merge_duplicate_headers=True,
-                                # cell_selectable=False,
                                 style_header={'textAlign': 'center', 'backgroundColor': '#f9f9f9', 'fontWeight': 'bold'},
                                 style_cell={'textAlign': 'center'},
-                                style_cell_conditional=[
-                                    {
-                                        'if': {'column_id': 'i'},
-                                        # 'textAlign': 'right',
-                                        'background-color': '#f9f9f9'
-                                    }
-                                ],
                                 style_data_conditional=[
                                     {
                                         'if': {'row_index': 'odd'},
                                         'backgroundColor': '#f9f9f9'
+                                    },
+                                    {
+                                        'if': {'row_index': -1},
+                                        'backgroundColor': '#000000'
                                     }
                                 ],
                         ),
                         ),
-                        # df2=pd.DataFrame.from_dict(df),
                         html.Div([
-                            # html.H3("Column 2"),
                             dcc.Graph(
                             id='graph_df',
-                            figure=go.Figure(data=[go.Scatter(
-                                x=pd.DataFrame.from_dict(df).iloc[:,0],
-                                y=pd.DataFrame.from_dict(df).iloc[:,1], line_color='#242582')],
-                                layout=go.Layout(title=r'$\text{Optimal Interarrival times } (x_i)$',
-                                    template='plotly_white', paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')),
+                            figure = no_fig,
                             config={'displayModeBar': False},
                             )
                         ], className="graphic"),
-
                         ],
                 ),
             ],
@@ -167,9 +160,9 @@ def update_click_output(button_click, close_click):
     else:
         return {"display": "none"}
 
-# TODO: update table
+
 @app.callback(
-    [Output('schedule_df', 'data'), Output('graph_df', 'data')], # Output('graph_df', 'data')],
+    [Output('schedule_df', 'columns'), Output('schedule_df', 'data'), Output('graph_df', 'figure')],
     [Input('submit-button', 'n_clicks')],
     [State('mean', 'value'), State('SCV', 'value'), State('omega', 'value'),
      State('n', 'value'), State('wis', 'value'), State('u', 'value')],
@@ -190,20 +183,25 @@ def updateTable(n_clicks, mean, SCV, omega, n, wis, u):
 
     x = x * mean
 
-    df = pd.DataFrame({r'Patient (\(i\))': np.arange(1,len(x)+1),
+    df = pd.DataFrame({r'Client (\(i\))': list(np.arange(1,len(x)+1)),
                    r'Interarrival time (\(x_i\))': [f'{np.round(i,4):.4f}' for i in x],
                    r'Arrival time (\(t_i\))': [f'{np.round(i,4):.4f}' for i in np.cumsum(x)]})
 
-    # print([df.to_dict('records')])
+    figure = go.Figure(data=[go.Scatter(
+        x=df.iloc[:,0], y=df.iloc[:,1], marker={'color': '#242582'})],
+        layout=go.Layout(
+            title=go.layout.Title(text=r'$\text{Optimal interarrival times } (x_i)$', x=0.5, xanchor='center'),
+            # title=r'$\text{Optimal Interarrival times } (x_i)$',
+            xaxis={'title': r'$\text{Client } i$', 'tick0': 1, 'dtick': 1, 'range': [0.7,len(x) + 0.3]},
+            yaxis={'title': r'$\text{Interarrival time } (x_i)$'},# 'range': [-0.3, max(x) + 0.3]},
+            paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)'))
+    
+    columns = [{"name": [f"Appointment Schedule (Cost: {y * mean:.4f})", k], "id": k} for k in df.columns]
 
-    # return df
-    return df.to_dict('records'), df.to_dict('records')
-
+    return columns, df.to_dict('records'), figure
 
 
 app.layout = app_layout
 
 if __name__ == '__main__':
   app.run_server() #debug=True)
-
-
