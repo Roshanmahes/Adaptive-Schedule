@@ -20,11 +20,13 @@ df = pd.DataFrame({r'Patient (\(i\))': np.arange(1,len(x)+1),
                    r'Interarrival time (\(x_i\))': [f'{np.round(i,4):.4f}' for i in x],
                    r'Arrival time (\(t_i\))': [f'{np.round(i,4):.4f}' for i in np.cumsum(x)]})
 
-# df = df.to_dict('records')
+df = df.to_dict('records')
 
 
 # main app
-app = dash.Dash(__name__, external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML'])
+# app = dash.Dash(__name__, external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML'])
+
+app = dash.Dash(__name__, external_scripts=['https://cdn.jsdelivr.net/npm/mathjax@2.7.8/MathJax.js?config=TeX-MML-AM_CHTML'])
 server = app.server
 
 app.title = "Adaptive Schedule"
@@ -35,7 +37,7 @@ def app_layout():
     app_layout = html.Div(id='main',children=[
         dcc.Interval(id="interval-updating-graphs", interval=1000, n_intervals=0),
         html.Div(id="top-bar"),
-        # html.P(children=r'Delicious \(\pi\) is inline with my goals (TODO).'),
+        html.P(children=r'Delicious \(\pi\) is inline with my goals (TODO).'),
         # html.P(children=r'$$\omega \sum_{i=1}^{n}\mathbb{E}I_i + (1 - \omega)\sum_{i=1}^{n}\mathbb{E}W_i$$',
         #   style={'text-align': 'center'}),
 
@@ -104,8 +106,9 @@ def app_layout():
                         html.Div(
                             dt.DataTable(
                                 id='schedule_df',
-                                columns=[{"name": ["Appointment Schedule", k], "id": k} for k in df.columns],
-                                data=df.to_dict('records'),
+                                columns=[{"name": ["Appointment Schedule", k], "id": k} for k in df[0].keys()],
+                                # columns=[{"name": ["Appointment Schedule", k], "id": k} for k in df.columns],
+                                data=df, #.to_dict('records'),
                                 merge_duplicate_headers=True,
                                 style_header={'textAlign': 'center'},
                                 style_cell={'textAlign': 'center'},
@@ -168,6 +171,9 @@ def update_click_output(button_click, close_click):
 )
 def updateTable(n_clicks, mean, SCV, omega, n, wis, u):
 
+    print(n_clicks)
+    print(mean, SCV, omega)
+
     N = n + wis
     tol = None if N < 15 else 1e-4
 
@@ -187,7 +193,8 @@ def updateTable(n_clicks, mean, SCV, omega, n, wis, u):
 
     # print([df.to_dict('records')])
 
-    return df.to_dict('records')
+    # return df
+    return [df.to_dict('records')]
 
 app.layout = app_layout
 
