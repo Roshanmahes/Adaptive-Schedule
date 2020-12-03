@@ -8,6 +8,7 @@ from markdown_helper import markdown_popup
 import numpy as np
 import pandas as pd
 from adaptive_scheduling import Transient_IA
+import plotly.graph_objs as go
 
 # df = pd.read_csv('https://raw.githubusercontent.com/plotly/datasets/master/solar.csv')
 
@@ -37,7 +38,6 @@ def app_layout():
     app_layout = html.Div(id='main',children=[
         dcc.Interval(id="interval-updating-graphs", interval=1000, n_intervals=0),
         html.Div(id="top-bar"),
-        html.P(children=r'Delicious \(\pi\) is inline with my goals (TODO).'),
         # html.P(children=r'$$\omega \sum_{i=1}^{n}\mathbb{E}I_i + (1 - \omega)\sum_{i=1}^{n}\mathbb{E}W_i$$',
         #   style={'text-align': 'center'}),
 
@@ -110,30 +110,37 @@ def app_layout():
                                 # columns=[{"name": ["Appointment Schedule", k], "id": k} for k in df.columns],
                                 data=df, #.to_dict('records'),
                                 merge_duplicate_headers=True,
-                                style_header={'textAlign': 'center'},
+                                # cell_selectable=False,
+                                style_header={'textAlign': 'center', 'backgroundColor': '#f9f9f9', 'fontWeight': 'bold'},
                                 style_cell={'textAlign': 'center'},
                                 style_cell_conditional=[
                                     {
                                         'if': {'column_id': 'i'},
                                         # 'textAlign': 'right',
-                                        'background-color': '#FAFAFA'
+                                        'background-color': '#f9f9f9'
+                                    }
+                                ],
+                                style_data_conditional=[
+                                    {
+                                        'if': {'row_index': 'odd'},
+                                        'backgroundColor': '#f9f9f9'
                                     }
                                 ],
                         ),
                         ),
-
-                            # html.Div([
-                            #     html.H3("Column 2"),
-                            #     dcc.Graph(
-                            #     id="graph high",
-                            #     figure={
-                            #         "data": [df.to_dict('records')],
-                            #         "layout": {
-                            #             "title": "Graph 2"
-                            #         }
-                            #     }, className="graph"
-                            #     )
-                            # ], className="graphic"),
+                        # df2=pd.DataFrame.from_dict(df),
+                        html.Div([
+                            # html.H3("Column 2"),
+                            dcc.Graph(
+                            id='graph_df',
+                            figure=go.Figure(data=[go.Scatter(
+                                x=pd.DataFrame.from_dict(df).iloc[:,0],
+                                y=pd.DataFrame.from_dict(df).iloc[:,1], line_color='#242582')],
+                                layout=go.Layout(title=r'$\text{Optimal Interarrival times } (x_i)$',
+                                    template='plotly_white', paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)')),
+                            config={'displayModeBar': False},
+                            )
+                        ], className="graphic"),
 
                         ],
                 ),
@@ -160,19 +167,15 @@ def update_click_output(button_click, close_click):
     else:
         return {"display": "none"}
 
-
 # TODO: update table
 @app.callback(
-    [Output('schedule_df', 'data')],
+    [Output('schedule_df', 'data'), Output('graph_df', 'data')], # Output('graph_df', 'data')],
     [Input('submit-button', 'n_clicks')],
     [State('mean', 'value'), State('SCV', 'value'), State('omega', 'value'),
      State('n', 'value'), State('wis', 'value'), State('u', 'value')],
      
 )
 def updateTable(n_clicks, mean, SCV, omega, n, wis, u):
-
-    print(n_clicks)
-    print(mean, SCV, omega)
 
     N = n + wis
     tol = None if N < 15 else 1e-4
@@ -194,7 +197,9 @@ def updateTable(n_clicks, mean, SCV, omega, n, wis, u):
     # print([df.to_dict('records')])
 
     # return df
-    return [df.to_dict('records')]
+    return df.to_dict('records'), df.to_dict('records')
+
+
 
 app.layout = app_layout
 
@@ -202,25 +207,3 @@ if __name__ == '__main__':
   app.run_server() #debug=True)
 
 
-# app = dash.Dash(__name__)
-# mathjax = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML'
-# app.scripts.append_script({ 'external_url' : mathjax })
-
-# app = dash.Dash(__name__, external_scripts=[
-#       'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
-#     ])
-# server = app.server
-
-# app.title = "Dynamic Appointment Scheduling"
-
-# app.layout = html.Div(id='main',children=[
-#   html.P(children=r'∆ Delicious \(\pi\) is inline with my goals.'),
-#   html.P(children=r'$$ \lim_{t \rightarrow \infty} \pi = 0$$'),
-#   html.P(style={'text-align':'left'}, children=r'\(\leftarrow \pi\)'),
-#   html.P(style={'text-align':'left'}, children='not much left.'),
-#   html.P(style={'text-align':'right'},children=r'\(\pi \rightarrow\)'),
-#   html.P(style={'text-align':'right'},children='but it feels so right.'),
-# ])
-
-# if __name__ == '__main__':
-#     app.run_server()

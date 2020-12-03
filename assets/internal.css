@@ -139,7 +139,9 @@ p {
   width: 25%;
 }
 
-
+/* tr:hover {
+  background-color: rgb(41, 56, 55) !important;
+} */
 
 #my_table2 {
   /* border: 1px solid black; */
