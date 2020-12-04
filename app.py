@@ -58,10 +58,12 @@ def app_layout():
                             children=[
                                 html.H4("Adaptive Schedule"),
                                 html.P(
-                                    "TODO"
+                                    'This webapp solves the minimization problem' +
+                                    r'$$\min_{t_1,\dots,t_n}\omega \sum_{i=1}^{n}\mathbb{E}I_i + (1 - \omega)\sum_{i=1}^{n}\mathbb{E}W_i,$$' +
+                                    r'where $I_i$ and $W_i$ are the expected idle time and waiting time associated to client $i$, respectively. ' +
+                                    r'The sequence of arrival epochs $t_1,\dots,t_n$ is called the schedule. ' +
+                                    r'The webapp can be used to TODO.'
                                 ),
-                                html.P(children=r'$$\omega \sum_{i=1}^{n}\mathbb{E}I_i + (1 - \omega)\sum_{i=1}^{n}\mathbb{E}W_i$$',
-                                    style={'text-align': 'center'}),
                                 html.Button(
                                     "Learn more", id="learn-more-button", n_clicks=0
                                 )
@@ -191,8 +193,8 @@ def updateTable(n_clicks, mean, SCV, omega, n, wis, u):
         x=df.iloc[:,0], y=df.iloc[:,1], marker={'color': '#242582'})],
         layout=go.Layout(
             title=go.layout.Title(text=r'$\text{Optimal interarrival times } (x_i)$', x=0.5, xanchor='center'),
-            # title=r'$\text{Optimal Interarrival times } (x_i)$',
-            xaxis={'title': r'$\text{Client } i$', 'tick0': 1, 'dtick': 1, 'range': [0.7,len(x) + 0.3]},
+            # title=r'$\text{Optimal interarrival times } (x_i)$',
+            xaxis={'title': r'$\text{Client } (i)$', 'tick0': 1, 'dtick': 1, 'range': [0.7,len(x) + 0.3]},
             yaxis={'title': r'$\text{Interarrival time } (x_i)$'},# 'range': [-0.3, max(x) + 0.3]},
             paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)'))
     

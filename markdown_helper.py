@@ -29,12 +29,8 @@ def markdown_popup():
                                 ##### What am I looking at?
                                 
                                 This app solves the minimization problem $t_1,\dots,t_n$ are the patients' arrival epochs)
-
-                                \(\omega \sum_{i=1}^{n}\mathbb{E}I_i + (1 - \omega)\sum_{i=1}^{n}\mathbb{E}W_i\)
                                 
-                                \begin{align}
-                                \omega \sum_{i=1}^{n}\mathbb{E}I_i + (1 - \omega)\sum_{i=1}^{n}\mathbb{E}W_i
-                                \end{align}
+                                TO $\omega \sum_{i=1}^{n}\mathbb{E}I_i$ + $(1 - \omega)\sum_{i=1}^{n}\mathbb{E}W_i$
 
                                 where $I_i$ is the idle time and $W_i$ is the waiting time associated to client $i$. We schedule the
                                 jobs one by one: at the moment 
