@@ -108,14 +108,7 @@ p {
 }
 
 #learn-more-button {
-  background-color: #242582;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 5px 20px;
-  text-transform: none;
-  line-height: 30px;
-  font-family: "Raleway", sans-serif;
+  color: #242582;
 }
 
 .control-section {
