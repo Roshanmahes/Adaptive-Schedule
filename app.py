@@ -87,8 +87,8 @@ def app_layout():
                                 html.Td(r'\([0,8]\)'),
                                 html.Td('#clients already waiting in system')])] + 
                             [html.Tr([html.Td(r'\(u\)'),
-                                dcc.Input(id='u', min=0, max=5, step=0.01, value=0, type='number'),
-                                html.Td(r'\([0,5]\)'),
+                                dcc.Input(id='u', min=0, max=50, step=0.01, value=0, type='number'),
+                                html.Td(r'\([0,50]\)'),
                                 html.Td('service time client in service (so far)')])], style={'width': '100%'}
                         ),
                         html.Button(id='submit-button', n_clicks=0, children='Compute Appointment Schedule'),
