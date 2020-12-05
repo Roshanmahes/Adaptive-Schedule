@@ -37,8 +37,6 @@
 .container {
   position: relative;
   width: 100%;
-  /*max-width: 960px;*/
-  /*margin: 0 auto;*/
   padding: 0 20px;
   box-sizing: border-box; }
 .column,
@@ -165,11 +163,11 @@ blockquote {
 /* Links
 –––––––––––––––––––––––––––––––––––––––––––––––––– */
 a {
-  color: #1EAEDB;
+  color: #242582;
   text-decoration: underline;
   cursor: pointer;}
 a:hover {
-  color: #0FA0CE; }
+  color: #242582; }
 
 
 /* Buttons
@@ -215,8 +213,8 @@ input[type="submit"].button-primary,
 input[type="reset"].button-primary,
 input[type="button"].button-primary {
   color: #FFF;
-  background-color: #33C3F0;
-  border-color: #33C3F0; }
+  background-color: #242582;
+  border-color: #242582; }
 .button.button-primary:hover,
 button.button-primary:hover,
 input[type="submit"].button-primary:hover,
@@ -228,8 +226,8 @@ input[type="submit"].button-primary:focus,
 input[type="reset"].button-primary:focus,
 input[type="button"].button-primary:focus {
   color: #FFF;
-  background-color: #1EAEDB;
-  border-color: #1EAEDB; }
+  background-color: #242582;
+  border-color: #242582; }
 
 
 /* Forms
@@ -277,7 +275,7 @@ input[type="url"]:focus,
 input[type="password"]:focus,
 textarea:focus,
 select:focus {
-  border: 1px solid #33C3F0;
+  border: 1px solid #242582;
   outline: 0; }
 label,
 legend {

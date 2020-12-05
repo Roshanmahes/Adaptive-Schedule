@@ -36,13 +36,13 @@ body {
 }
 
 .dash-spreadsheet-container table {
-  --accent: #1EAEDB !important;
-  --selected-background: #1EAEDB !important;
+  --accent: #242582 !important;
+  --selected-background: #242582 !important;
   --selected-color: #080707 !important;
 }
 
 H4 {
-  font-family: "Roboto", sans-serif;
+  font-family: 'Roboto', sans-serif;
   font-weight: 600;
 }
 
@@ -94,7 +94,7 @@ p {
 }
 
 .closeButton:hover {
-  color: #3e1040 !important;
+  color: #242582 !important;
 }
 
 #header-section {
@@ -112,10 +112,7 @@ p {
 }
 
 .control-section {
-  /* width: 85%; */
   width: 30%;
-  /* display: flex; */
-  /* flex-flow: column nowrap; */
   padding: 5px;
   flex-shrink: 0;
   margin-bottom: 2%;
@@ -123,7 +120,6 @@ p {
 
 .control-element {
   width: 500%;
-  /* font-size: 15px; */
   padding: 10px;
   display: flex;
   flex-flow: row nowrap;
@@ -133,46 +129,6 @@ p {
   width: 25%;
 }
 
-/* tr:hover {
-  background-color: rgb(41, 56, 55) !important;
-} */
-
-#my_table2 {
-  /* border: 1px solid black; */
-  border-collapse: collapse;
-  font-family: monospace;
-  --accent: blue;
-  --border: black;
-  --text-color: #3c3c3c;
-  --hover: #fdfdfd;
-  --background-color-ellipses: #fdfdfd;
-  --faded-text: #fafafa;
-  --faded-text-header: #b4b4b4;
-  --selected-background: #3e1040;
-  --faded-dropdown: #f0f0f0;
-  --muted: #c8c8c8;
-}
-
-
-/* .dash-spreadsheet-container .dash-spreadsheet-inner my_table {
-  border-collapse: collapse;
-  font-family: monospace;
-  --accent: hotpink;
-  --border: lightgrey;
-  --text-color: #3c3c3c;
-  --hover: #fdfdfd;
-  --background-color-ellipses: #fdfdfd;
-  --faded-text: #fafafa;
-  --faded-text-header: #b4b4b4;
-  --selected-background: rgba(255, 65, 54, 0.2);
-  --faded-dropdown: #f0f0f0;
-  --muted: #c8c8c8;
-} */
-
-/* .control-element > div:nth-child(2) {
-  width: 20%;
-} */
-
 #mean{
   width: 100%;
   margin-top: 5%;
@@ -181,7 +137,6 @@ p {
 }
 
 #SCV{
-  /* border: solid #ccc 10px; */
   box-sizing: border-box;
   width: 100%;
   margin-top: 5%;
@@ -216,4 +171,3 @@ p {
   margin-bottom: 5%;
   height: 90%;
 }
-

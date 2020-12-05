@@ -173,8 +173,8 @@ def updateTable(n_clicks, mean, SCV, omega, n, wis, u):
 
     figure = go.Figure(data=[go.Scatter(x=df.iloc[:,0], y=df.iloc[:,1], marker={'color': '#242582'})],
         layout=go.Layout(
-            title=go.layout.Title(text=r'$\text{Optimal interarrival times } (x_i)$', x=0.5, xanchor='center'),
-            # title=r'$\text{Optimal interarrival times } (x_i)$',
+            title=go.layout.Title(text=r'$\text{Optimal interarrival times } (x_i)$', x=0.5, xanchor='center'), # Plotly 4
+            # title=r'$\text{Optimal interarrival times } (x_i)$', # Plotly 2
             xaxis={'title': r'$\text{Client } (i)$', 'tick0': 1, 'dtick': 1, 'range': [0.7,len(x) + 0.3]},
             yaxis={'title': r'$\text{Interarrival time } (x_i)$'},
             paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)'))

@@ -8,8 +8,6 @@
         -ms-animation: fadein 0.5s; /* Internet Explorer */
          -o-animation: fadein 0.5s; /* Opera < 12.1 */
             animation: fadein 0.5s ease-in 7s forwards;  
-  
-  
     
     /* The banner */
     position: absolute;
@@ -21,7 +19,6 @@
     text-align: center;
     cursor: progress;
   }
-  
   
   @keyframes fadein {
       from { opacity: 0; }
@@ -51,4 +48,3 @@
       from { opacity: 0; }
       to   { opacity: 1; }
   }
-  
