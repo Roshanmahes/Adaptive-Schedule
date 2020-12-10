@@ -157,6 +157,7 @@ def updateTable(n_clicks, mean, SCV, omega, n, wis, u):
 
     N = n + wis
     tol = None if N < 15 else 1e-4
+    u = u / mean
 
     if not u and not wis:
         N = N - 1
