@@ -110,6 +110,11 @@ def app_layout():
                                     {
                                         'if': {'row_index': 'odd'},
                                         'backgroundColor': '#f9f9f9'
+                                    },
+                                    {
+                                        'if': {'state': 'selected'},
+                                        'backgroundColor': '#dce9f9',
+                                        'border': '1px solid #242582',
                                     }
                                 ],
                             ),
