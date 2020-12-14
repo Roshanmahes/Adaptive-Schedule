@@ -21,6 +21,7 @@ body {
 
 #left-side-column {
   height: calc(100vh);
+  overflow-y: auto;
   width: 45%;
   color: #000000;
   background-color: #dce9f9;
@@ -30,7 +31,7 @@ body {
 
 #right-side-column {
   height: calc(100vh - 5px);
-  overflow-y: scroll;
+  overflow-y: auto;
   margin-left: 1%;
   padding: 1rem 2rem;
 }
