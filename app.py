@@ -71,7 +71,7 @@ def app_layout():
                                 html.Td(r'\([0,\infty)\)'),
                                 html.Td('mean')])] +
                             [html.Tr([html.Td(r'\(\mathbb{S}(B)\)'),
-                                html.Div(dcc.Input(id='SCV', min=0.2, max=2, value=0.5, type='number')),
+                                html.Div(dcc.Input(id='SCV', min=0.2, max=2, value=0.8, type='number')),
                                 html.Td(r'\([0.2,2]\)'),
                                 html.Td('SCV (squared coefficient of variation)')])] +
                             [html.Tr([html.Td(r'\(\omega\)'),
@@ -79,12 +79,12 @@ def app_layout():
                                 html.Td(r'\((0,1)\)'),
                                 html.Td('importance idle time : waiting time')])] +
                             [html.Tr([html.Td(r'\(n\)'),
-                                dcc.Input(id='n', min=1, max=25, step=1, value=15, type='number'),
-                                html.Td(r'\([1,25]\)'),
+                                dcc.Input(id='n', min=1, max=20, step=1, value=12, type='number'),
+                                html.Td(r'\([1,20]\)'),
                                 html.Td('#clients to be scheduled')])] +
                             [html.Tr([html.Td(r'\(\# wis\)'),
-                                dcc.Input(id='wis', min=0, max=8, step=1, value=0, type='number'),
-                                html.Td(r'\([0,8]\)'),
+                                dcc.Input(id='wis', min=0, max=5, step=1, value=0, type='number'),
+                                html.Td(r'\([0,5]\)'),
                                 html.Td('#clients already waiting in system')])] + 
                             [html.Tr([html.Td(r'\(u\)'),
                                 dcc.Input(id='u', min=0, max=50, step=0.01, value=0, type='number'),
