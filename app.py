@@ -11,13 +11,14 @@ from adaptive_scheduling import Transient_IA
 import plotly.graph_objs as go
 import plotly.io as pio
 
+import time
+
 pio.templates.default = 'plotly_white'
 
 
 # initial table & figure
-df = pd.DataFrame({r'Client (\(i\))': [''],
-                   r'Interarrival time (\(x_i\))': ['Computing appointment schedule...'],
-                   r'Arrival time (\(t_i\))': ['']})
+df = pd.DataFrame()
+df = pd.DataFrame({r'Adaptive Schedule': ['Loading applet...']})
 df = df.to_dict('records')
 
 no_fig = {
@@ -29,7 +30,7 @@ no_fig = {
     }
 }
 
-columns = [{'name': [f'Appointment Schedule', k], 'id': k} for k in df[0].keys()]
+columns = [{'name': [f'Appointment Scheduling', k], 'id': k} for k in df[0].keys()]
 
 # main app
 # app = dash.Dash(__name__, external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML'])
@@ -119,10 +120,19 @@ def app_layout():
                                 ],
                             ),
                         ),
+                        html.Div(
+                            dcc.Loading(
+                                id='loading-1',
+                                type='cube',
+                                color='#dce9f9',
+                                children=html.Div(id='loading-output-1'),
+                                fullscreen=True,
+                            ),
+                        ),
                         html.Div([
                             dcc.Graph(
                                 id='graph_df',
-                                figure = no_fig,
+                                figure=no_fig,
                                 config={'displayModeBar': False},
                             )], className='graphic'),
                     ],
@@ -151,9 +161,16 @@ def update_click_output(button_click, close_click):
     else:
         return {'display': 'none'}
 
+
+# # loading
+# @app.callback(Output("loading-output-1", "children"), Input('submit-button', 'n_clicks'))
+# def input_triggers_spinner(value):
+#     time.sleep(1)
+#     return value
+
 # schedule & graph
 @app.callback(
-    [Output('schedule_df', 'columns'), Output('schedule_df', 'data'), Output('graph_df', 'figure')],
+    [Output("loading-output-1", "children"), Output('schedule_df', 'columns'), Output('schedule_df', 'data'), Output('graph_df', 'figure')],
     [Input('submit-button', 'n_clicks')],
     [State('mean', 'value'), State('SCV', 'value'), State('omega', 'value'),
      State('n', 'value'), State('wis', 'value'), State('u', 'value')],
@@ -187,7 +204,7 @@ def updateTable(n_clicks, mean, SCV, omega, n, wis, u):
     
     columns = [{'name': [f'Appointment Schedule (Cost: {y * mean:.4f})', k], 'id': k} for k in df.columns]
 
-    return columns, df.to_dict('records'), figure
+    return "", columns, df.to_dict('records'), figure
 
 
 app.layout = app_layout
