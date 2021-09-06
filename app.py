@@ -1,4 +1,5 @@
 # imports
+from logging import PlaceHolder
 import dash
 import dash_table as dt
 import dash_core_components as dcc
@@ -9,16 +10,15 @@ import numpy as np
 import pandas as pd
 from adaptive_scheduling import Transient_IA
 import plotly.graph_objs as go
-import plotly.io as pio
+# import plotly.io as pio
 
-import time
-
-pio.templates.default = 'plotly_white'
+# pio.templates.default = 'plotly_white'
 
 
 # initial table & figure
-df = pd.DataFrame()
-df = pd.DataFrame({r'Adaptive Schedule': ['Loading applet...']})
+df = pd.DataFrame({r'Client (\(i\))': [''],
+                   r'Interarrival time (\(x_i\))': ['Computing appointment schedule...'],
+                   r'Arrival time (\(t_i\))': ['']})
 df = df.to_dict('records')
 
 no_fig = {
@@ -30,16 +30,18 @@ no_fig = {
     }
 }
 
-columns = [{'name': [f'Appointment Scheduling', k], 'id': k} for k in df[0].keys()]
+columns = [{'name': [f'Appointment Schedule', k], 'id': k} for k in df[0].keys()]
 
 # main app
 # app = dash.Dash(__name__, external_scripts=['https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML'])
-app = dash.Dash(__name__, external_scripts=['https://cdn.jsdelivr.net/npm/mathjax@2.7.8/MathJax.js?config=TeX-MML-AM_CHTML'])
+app = dash.Dash(__name__, external_scripts=['https://cdn.jsdelivr.net/npm/mathjax@2.7.9/MathJax.js?config=TeX-MML-AM_CHTML'])
+# app = dash.Dash(__name__, external_scripts=['https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/node-main.min.js?config=TeX-MML-AM_CHTML'])
+
 app.title = 'Adaptive Schedule'
 server = app.server
 
 def app_layout():
-    
+
     app_layout = html.Div(id='main',children=[
         dcc.Interval(id='interval-updating-graphs', interval=1000, n_intervals=0),
         html.Div(id='top-bar'),
@@ -54,10 +56,10 @@ def app_layout():
                         html.P(
                             ['This webapp solves the minimization problem' +
                             r'$$\min_{t_1,\dots,t_n}\omega \sum_{i=1}^{n}\mathbb{E}I_i + (1 - \omega)\sum_{i=1}^{n}\mathbb{E}W_i,$$' +
-                            r'where $I_i$ and $W_i$ are the idle time and waiting time associated to client $i$, respectively. ' +
-                            r'The sequence of arrival epochs $t_1,\dots,t_n$ is called the schedule. ' +
-                            r'By inserting the relevant information (i.e., $n, \# wis, u$) at any time point, ' +
-                            'this application can be used to generate adaptive schedules as well. ', 
+                            r'where \(I_i\) and \(W_i\) are the idle time and waiting time associated to client \(i\), respectively. ' +
+                            r'The sequence of arrival epochs \(t_1,\dots,t_n\) is called the schedule. ' +
+                            r'By entering the state information \((k, u)\), ' +
+                            'this application can be used to generate adaptive schedules. ',
                             'Click ', html.A('here', id='learn-more-button', n_clicks=0), ' to learn more.']
                         ),
                         html.P('Please fill in the parameters below.'),
@@ -65,34 +67,51 @@ def app_layout():
                             id='my_table',
                             children=
                             # Header
-                            [html.Tr([html.Th('Parameter'), html.Th('Value'), html.Th('Range'), html.Th('Explanation')])] +
+                            [html.Tr([html.Td(''), html.Th('Parameter'), html.Th('Value'), html.Th('Range'), html.Th('Explanation')])] +
                             # Body
-                            [html.Tr([html.Td(r'\(\mathbb{E}B \)'),
-                                html.Div(dcc.Input(id='mean', min=0.01, value=1, type='number')),
-                                html.Td(r'\([0,\infty)\)'),
-                                html.Td('mean')])] +
-                            [html.Tr([html.Td(r'\(\mathbb{S}(B)\)'),
-                                html.Div(dcc.Input(id='SCV', min=0.2, max=2, value=0.8, type='number')),
-                                html.Td(r'\([0.2,2]\)'),
-                                html.Td('SCV (squared coefficient of variation)')])] +
-                            [html.Tr([html.Td(r'\(\omega\)'),
-                                dcc.Input(id='omega', min=0.1, max=0.9, value=0.5, type='number'),
+                            # [html.Tr([html.Td('test', style={'text-align': 'center'})])] + 
+                            [html.Tr([html.Th('Schedule Characteristics'),
+                                html.Td(r'\(\omega\)'),
+                                dcc.Input(id='omega', min=0, max=1, type='number', placeholder="e.g. '0.5'"),
                                 html.Td(r'\((0,1)\)'),
-                                html.Td('importance idle time : waiting time')])] +
-                            [html.Tr([html.Td(r'\(n\)'),
-                                dcc.Input(id='n', min=1, max=20, step=1, value=12, type='number'),
-                                html.Td(r'\([1,20]\)'),
-                                html.Td('#clients to be scheduled')])] +
-                            [html.Tr([html.Td(r'\(\# wis\)'),
-                                dcc.Input(id='wis', min=0, max=5, step=1, value=0, type='number'),
-                                html.Td(r'\([0,5]\)'),
-                                html.Td('#clients already waiting in system')])] + 
-                            [html.Tr([html.Td(r'\(u\)'),
-                                dcc.Input(id='u', min=0, max=50, step=0.01, value=0, type='number'),
-                                html.Td(r'\([0,50]\)'),
-                                html.Td('service time client in service (so far)')])], style={'width': '100%'}
+                                html.Td('idle : waiting time')])] +
+                            [html.Tr([html.Td(''),
+                                html.Td(r'\(n\)'),
+                                dcc.Input(id='n', min=1, max=20, step=1, type='number', placeholder="e.g. '4'"),
+                                html.Td(r'\(\mathbb{N}_{\leq 20}\)'),
+                                html.Td('#clients to serve')])] +
+                            [html.Tr([html.Th('Patient Characteristics'),
+                                html.Td(r'\(\mathbb{E}B_i \)'),
+                                html.Div(dcc.Input(id='mean', type='text', placeholder="e.g. '1' or '(1,1,1,1)'")), ### TODO: eval, list
+                                html.Td(r'\([0,\infty)^n\)'),
+                                html.Td('mean(s)')])] +
+                            [html.Tr([html.Td(''),
+                                html.Td(r'\(\mathbb{S}(B_i)\)'),
+                                html.Div(dcc.Input(id='SCV', type='text', placeholder="e.g. '(0.8,1.1,0.9,1.0)'")), ### TODO: eval, list
+                                html.Td(r'\([0.2,2]^n\)'),
+                                html.Td('SCV(s)')])] +
+                            [html.Tr([html.Th('State Information'),
+                                html.Td(r'\(k\)'),
+                                dcc.Input(id='wis', min=0, max=5, step=1, type='number', placeholder="optional, e.g. '2'"), ### TODO: wis should be k!!!
+                                html.Td(r'\(\mathbb{N}_{\leq 5}\)'), ### TODO: optional -> empty == 0
+                                html.Td('#clients in system')])] +
+                            [html.Tr([html.Td(''),
+                                html.Td(r'\(u\)'),
+                                dcc.Input(id='u', min=0, type='number', placeholder="optional, e.g. '0.33'"), ### TODO: optional -> empty == 0
+                                html.Td(r'\([0,\infty)\)'),
+                                html.Td('elapsed service time')])] +
+                            [html.Tr([html.Th('Optional Constraints'),
+                                html.Td(r'\(k\)'),
+                                dcc.Input(id='wis2', min=0, max=5, step=1, type='number', placeholder="optional, e.g. '2'"), ### TODO: wis should be k!!!
+                                html.Td(r'\([0,\infty)\times \dots\times [0,\infty)\)'), ### TODO: optional -> empty == 0
+                                html.Td('fixed arrivals')])] +
+                            [html.Tr([html.Td(''),
+                                html.Td(r'\(u\)'),
+                                dcc.Input(id='u2', min=0, type='number', placeholder="optional, e.g. '0.33'"), ### TODO: optional -> empty == 0
+                                html.Td(r'\([0,\infty)\)'),
+                                html.Td('first arrival moment')])], style={'width': '100%'}
                         ),
-                        html.Button(id='submit-button', n_clicks=0, children='Compute Appointment Schedule'),
+                        html.Button(id='submit-button', n_clicks=0, children='Compute Appointment Schedule', style={'font-style': 'italic'}),
                     ]
                 ),
                 html.Div(
@@ -120,19 +139,10 @@ def app_layout():
                                 ],
                             ),
                         ),
-                        html.Div(
-                            dcc.Loading(
-                                id='loading-1',
-                                type='cube',
-                                color='#dce9f9',
-                                children=html.Div(id='loading-output-1'),
-                                fullscreen=True,
-                            ),
-                        ),
                         html.Div([
                             dcc.Graph(
                                 id='graph_df',
-                                figure=no_fig,
+                                figure = no_fig,
                                 config={'displayModeBar': False},
                             )], className='graphic'),
                     ],
@@ -161,21 +171,17 @@ def update_click_output(button_click, close_click):
     else:
         return {'display': 'none'}
 
-
-# # loading
-# @app.callback(Output("loading-output-1", "children"), Input('submit-button', 'n_clicks'))
-# def input_triggers_spinner(value):
-#     time.sleep(1)
-#     return value
-
 # schedule & graph
 @app.callback(
-    [Output("loading-output-1", "children"), Output('schedule_df', 'columns'), Output('schedule_df', 'data'), Output('graph_df', 'figure')],
+    [Output('schedule_df', 'columns'), Output('schedule_df', 'data'), Output('graph_df', 'figure')],
     [Input('submit-button', 'n_clicks')],
     [State('mean', 'value'), State('SCV', 'value'), State('omega', 'value'),
      State('n', 'value'), State('wis', 'value'), State('u', 'value')],
 )
 def updateTable(n_clicks, mean, SCV, omega, n, wis, u):
+
+    mean = eval(mean)
+    SCV = eval(SCV)
 
     N = n + wis
     tol = None if N < 15 else 1e-4
@@ -194,17 +200,17 @@ def updateTable(n_clicks, mean, SCV, omega, n, wis, u):
         r'Interarrival time (\(x_i\))': [f'{np.round(i,4):.4f}' for i in x],
         r'Arrival time (\(t_i\))': [f'{np.round(i,4):.4f}' for i in np.cumsum(x)]})
 
-    figure = go.Figure(data=[go.Scatter(x=df.iloc[:,0], y=df.iloc[:,1], marker={'color': '#242582'})],
+    figure = go.Figure(data=[go.Scatter(x=df.iloc[:,0], y=x, marker={'color': '#242582'})],
         layout=go.Layout(
             title=go.layout.Title(text=r'$\text{Optimal interarrival times } (x_i)$', x=0.5, xanchor='center'), # Plotly 4
             # title=r'$\text{Optimal interarrival times } (x_i)$', # Plotly 2
             xaxis={'title': r'$\text{Client } (i)$', 'tick0': 1, 'dtick': 1, 'range': [0.7,len(x) + 0.3]},
             yaxis={'title': r'$\text{Interarrival time } (x_i)$'},
             paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)'))
-    
+
     columns = [{'name': [f'Appointment Schedule (Cost: {y * mean:.4f})', k], 'id': k} for k in df.columns]
 
-    return "", columns, df.to_dict('records'), figure
+    return columns, df.to_dict('records'), figure
 
 
 app.layout = app_layout

@@ -22,7 +22,7 @@ body {
 #left-side-column {
   height: calc(100vh);
   overflow-y: auto;
-  width: 45%;
+  width: 50%;
   color: #000000;
   background-color: #dce9f9;
   align-items: left;
@@ -131,44 +131,49 @@ p {
 }
 
 #mean{
-  width: 100%;
+  width: 90%;
   margin-top: 5%;
   margin-bottom: 5%;
-  height: 90%;
+  margin-left: 5%;
+  height: 100%;
 }
 
 #SCV{
-  box-sizing: border-box;
-  width: 100%;
+  width: 90%;
   margin-top: 5%;
   margin-bottom: 5%;
-  height: 90%;
+  margin-left: 5%;
+  height: 100%;
 }
 
 #omega{
-  width: 100%;
+  width: 90%;
   margin-top: 5%;
   margin-bottom: 5%;
-  height: 90%;
+  margin-left: 5%;
+  height: 100%;
 }
 
 #n{
-  width: 100%;
+  width: 90%;
   margin-top: 5%;
   margin-bottom: 5%;
-  height: 90%;
+  margin-left: 5%;
+  height: 100%;
 }
 
 #wis{
-  width: 100%;
+  width: 90%;
   margin-top: 5%;
   margin-bottom: 5%;
-  height: 90%;
+  margin-left: 5%;
+  height: 100%;
 }
 
 #u{
-  width: 100%;
+  width: 90%;
   margin-top: 5%;
   margin-bottom: 5%;
-  height: 90%;
+  margin-left: 5%;
+  height: 100%;
 }
