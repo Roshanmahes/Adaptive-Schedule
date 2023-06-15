@@ -1,18 +1,14 @@
 # imports
-from logging import PlaceHolder
 import dash
-import dash_table as dt
-import dash_core_components as dcc
-import dash_html_components as html
+from dash import dash_table as dt
+from dash import html, dcc
 from dash.dependencies import Input, Output, State
 from markdown_helper import markdown_popup
 import numpy as np
 import pandas as pd
-from adaptive_scheduling import Transient_IA
 import plotly.graph_objs as go
-# import plotly.io as pio
 
-# pio.templates.default = 'plotly_white'
+from new_adaptive_scheduling import optimal_schedule as Schedule
 
 
 # initial table & figure
@@ -44,22 +40,22 @@ def app_layout():
 
     app_layout = html.Div(id='main',children=[
         dcc.Interval(id='interval-updating-graphs', interval=1000, n_intervals=0),
-        html.Div(id='top-bar'),
         html.Div(
             className='container',
             children=[
+                html.Div(id='top-bar'),
                 html.Div(
                     id='left-side-column',
                     className='eight columns',
                     children=[
                         html.H4('Adaptive Schedule'),
                         html.P(
-                            ['This webapp solves the minimization problem' +
+                            ['This webapp solves the optimization problem' +
                             r'$$\min_{t_1,\dots,t_n}\omega \sum_{i=1}^{n}\mathbb{E}I_i + (1 - \omega)\sum_{i=1}^{n}\mathbb{E}W_i,$$' +
                             r'where \(I_i\) and \(W_i\) are the idle time and waiting time associated to client \(i\), respectively. ' +
-                            r'The sequence of arrival epochs \(t_1,\dots,t_n\) is called the schedule. ' +
-                            r'By entering the state information \((k, u)\), ' +
-                            'this application can be used to generate adaptive schedules. ',
+                            r'The sequence of arrival epochs \(t_1,\dots,t_n\) is called the schedule. By entering the state ' + 
+                            r'information \((k, u)\), this application can be used to generate adaptive schedules. ' +
+                            r'One also has the option to leave the schedule fixed until a certain time \(\tau\). ',
                             'Click ', html.A('here', id='learn-more-button', n_clicks=0), ' to learn more.']
                         ),
                         html.P('Please fill in the parameters below.'),
@@ -69,49 +65,51 @@ def app_layout():
                             # Header
                             [html.Tr([html.Td(''), html.Th('Parameter'), html.Th('Value'), html.Th('Range'), html.Th('Explanation')])] +
                             # Body
-                            # [html.Tr([html.Td('test', style={'text-align': 'center'})])] + 
                             [html.Tr([html.Th('Schedule Characteristics'),
                                 html.Td(r'\(\omega\)'),
-                                dcc.Input(id='omega', min=0, max=1, type='number', placeholder="e.g. '0.5'"),
+                                dcc.Input(id='omega', min=0.001, max=0.999, type='number', value=0.5, placeholder="e.g. '0.5'"),
                                 html.Td(r'\((0,1)\)'),
                                 html.Td('idle : waiting time')])] +
                             [html.Tr([html.Td(''),
                                 html.Td(r'\(n\)'),
-                                dcc.Input(id='n', min=1, max=20, step=1, type='number', placeholder="e.g. '4'"),
+                                dcc.Input(id='n', min=1, max=20, step=1, type='number', value=5, placeholder="e.g. '5'"),
                                 html.Td(r'\(\mathbb{N}_{\leq 20}\)'),
                                 html.Td('#clients to serve')])] +
-                            [html.Tr([html.Th('Patient Characteristics'),
-                                html.Td(r'\(\mathbb{E}B_i \)'),
-                                html.Div(dcc.Input(id='mean', type='text', placeholder="e.g. '1' or '(1,1,1,1)'")), ### TODO: eval, list
-                                html.Td(r'\([0,\infty)^n\)'),
+
+                            [html.Tr([html.Th('Client Characteristics'),
+                                html.Td(r'\(\mathbb{E}B_i\)'),
+                                html.Div(dcc.Input(id='means', type='text', value=1, placeholder="e.g. '1' or '(1,1,1,1,1)'")),
+                                html.Td(r'\((0,\infty)^n\)'),
                                 html.Td('mean(s)')])] +
                             [html.Tr([html.Td(''),
                                 html.Td(r'\(\mathbb{S}(B_i)\)'),
-                                html.Div(dcc.Input(id='SCV', type='text', placeholder="e.g. '(0.8,1.1,0.9,1.0)'")), ### TODO: eval, list
-                                html.Td(r'\([0.2,2]^n\)'),
+                                html.Div(dcc.Input(id='SCVs', type='text', value='(0.8,1.0,1.1,0.9,1.0)', placeholder="e.g. '(0.8,1.0,1.1,0.9,1.0)'")),
+                                html.Td(r'\((0,\infty)^n\)'),
                                 html.Td('SCV(s)')])] +
+
                             [html.Tr([html.Th('State Information'),
                                 html.Td(r'\(k\)'),
-                                dcc.Input(id='wis', min=0, max=5, step=1, type='number', placeholder="optional, e.g. '2'"), ### TODO: wis should be k!!!
-                                html.Td(r'\(\mathbb{N}_{\leq 5}\)'), ### TODO: optional -> empty == 0
+                                dcc.Input(id='k', min=0, max=19, step=1, type='number', placeholder="optional, e.g. '2'"),
+                                html.Td(r'\(\mathbb{N}_{< n}\)'),
                                 html.Td('#clients in system')])] +
                             [html.Tr([html.Td(''),
                                 html.Td(r'\(u\)'),
-                                dcc.Input(id='u', min=0, type='number', placeholder="optional, e.g. '0.33'"), ### TODO: optional -> empty == 0
+                                dcc.Input(id='u', min=0, type='number', placeholder="optional, e.g. '0.33'"),
                                 html.Td(r'\([0,\infty)\)'),
                                 html.Td('elapsed service time')])] +
+
                             [html.Tr([html.Th('Optional Constraints'),
-                                html.Td(r'\(k\)'),
-                                dcc.Input(id='wis2', min=0, max=5, step=1, type='number', placeholder="optional, e.g. '2'"), ### TODO: wis should be k!!!
-                                html.Td(r'\([0,\infty)\times \dots\times [0,\infty)\)'), ### TODO: optional -> empty == 0
-                                html.Td('fixed arrivals')])] +
+                                html.Td(r'\(t_{k+1},\dots,t_{\ell}\)'),
+                                dcc.Input(id='fixed_t', type='text', placeholder="optional, e.g. '(0.6,1.58)'"),
+                                html.Td(r'\([0,\infty)^{\ell-k}\)'),
+                                html.Td('fixed arrival times')])] +
                             [html.Tr([html.Td(''),
-                                html.Td(r'\(u\)'),
-                                dcc.Input(id='u2', min=0, type='number', placeholder="optional, e.g. '0.33'"), ### TODO: optional -> empty == 0
-                                html.Td(r'\([0,\infty)\)'),
-                                html.Td('first arrival moment')])], style={'width': '100%'}
+                                html.Td(r'\(\tau\)'),
+                                dcc.Input(id='tau', min=0, type='number', placeholder="optional, e.g. '1.8'"),
+                                html.Td(r'\([t_\ell,\infty)\)'),
+                                html.Td('fixed schedule time length')])], style={'width': '100%'}
                         ),
-                        html.Button(id='submit-button', n_clicks=0, children='Compute Appointment Schedule', style={'font-style': 'italic'}),
+                        html.Button(id='submit-button', n_clicks=0, children='Compute Appointment Schedule'),
                     ]
                 ),
                 html.Div(
@@ -171,44 +169,134 @@ def update_click_output(button_click, close_click):
     else:
         return {'display': 'none'}
 
+
 # schedule & graph
 @app.callback(
     [Output('schedule_df', 'columns'), Output('schedule_df', 'data'), Output('graph_df', 'figure')],
     [Input('submit-button', 'n_clicks')],
-    [State('mean', 'value'), State('SCV', 'value'), State('omega', 'value'),
-     State('n', 'value'), State('wis', 'value'), State('u', 'value')],
+    [State('omega', 'value'), State('n', 'value'),
+     State('means', 'value'), State('SCVs', 'value'),
+     State('k', 'value'), State('u', 'value'),
+     State('fixed_t', 'value'), State('tau', 'value')],
 )
-def updateTable(n_clicks, mean, SCV, omega, n, wis, u):
+def updateTable(n_clicks, omega, n, means, SCVs, k, u, fixed_t, tau):
 
-    mean = eval(mean)
-    SCV = eval(SCV)
+    error = None
+    try:
+        means = eval(str(means), {'__builtins__': {}})
+    except:
+        error = 'Error! No means entered.'
+    try:
+        SCVs = eval(str(SCVs), {'__builtins__': {}})
+    except:
+        error = 'Error! No SCVs entered.'
 
-    N = n + wis
-    tol = None if N < 15 else 1e-4
-    u = u / mean
+    if type(means) == float or type(means) == int:
+        means = [means] * n
+    if type(SCVs) == float or type(SCVs) == int:
+        SCVs = [SCVs] * n
+    if len(means) != n:
+        error = 'Error! Not enough means entered.'
+    elif len(SCVs) != n:
+        error = 'Error! Not enough SCVs entered.'
 
-    if not u and not wis:
-        N = N - 1
-        x, y = Transient_IA(SCV, u, omega, N, [], wis, tol)
-        x = np.pad(x, (1,0))
+    if not k:
+        k = 0
+    if not u:
+        u = 0
+    if not tau:
+        tau = 0
+    
+    if k >= n:
+        error = r'Error! Note that \(k < n\).'
+    elif k == 0 and u > 0:
+        error = r'Error! Note that \(u > 0 \implies k > 0\).'
+
+    try:
+        fixed_t = eval(str(fixed_t), {'__builtins__': {}})
+
+        if not fixed_t:
+            fixed_t = []
+        else:
+            if type(fixed_t) == float or type(fixed_t) == int:
+                fixed_t = np.array([fixed_t])
+            else:
+                fixed_t = np.array(fixed_t)
+
+            if len(fixed_t) > 1 and not all(i < j for i, j in zip(fixed_t, fixed_t[1:])):
+                error = r'Error! Note that the fixed arrival times must be increasing.'
+            elif len(fixed_t) >= n-k:
+                error = r'Error! Note that \(\ell < n\).'
+            elif len(fixed_t) and tau < fixed_t[-1]:
+                error = r'Error! Note that \(\tau \geq t_\ell\).'
+    except:
+        error = f'Error! Wrongly entered fixed arrival times.'
+
+    if error:  # error handling
+        df = pd.DataFrame({r'Client (\(i\))': [''],
+                   r'Interarrival time (\(x_i\))': [error],
+                   r'Arrival time (\(t_i\))': ['']})
+
+        figure = go.Figure(data=[go.Scatter(x=[0], y=[0], marker={'color': 'rgba(0,0,0,0)'})],
+            layout= {
+                'xaxis': {'visible': False},
+                'yaxis': {'visible': False},
+                'paper_bgcolor': 'rgba(0,0,0,0)',
+                'plot_bgcolor': 'rgba(0,0,0,0)'
+           })
+        figure.update_layout(title=r'Please enter the correct parameters.')
+        columns = [{'name': [f'Appointment Schedule', k], 'id': k} for k in df.keys()]
+
     else:
-        x, y = Transient_IA(SCV, u, omega, N, [], wis, tol)
+        if not k and not u:  # system is idle
+            if not len(fixed_t):
+                print('Case 1')
+                t, cost = Schedule(means,SCVs,omega,[],0,k=1,u=0)
+                t += tau
+                cost += omega * tau
+            else:
+                print('Case 2')
+                min_time_next = tau - fixed_t[-1]
+                fixed_inter_times = [(fixed_t[i] - fixed_t[i-1]) for i in range(1,len(fixed_t))]
+                print(fixed_inter_times, min_time_next)
+                t, cost = Schedule(means,SCVs,omega,fixed_inter_times,min_time_next,k=1,u=0)
+                print(t)
+                t += fixed_t[0]
+                cost += omega * fixed_t[0]
 
-    x = x * mean
+        else:  # a client is in service
+            if not len(fixed_t):
+                print('Case 3')
+                t, cost = Schedule(means,SCVs,omega,[],tau,k,u)
+            else:
+                print('Case 4')
+                min_time_next = tau - fixed_t[-1]
+                fixed_inter_times = [fixed_t[0]] + [(fixed_t[i] - fixed_t[i-1]) for i in range(1,len(fixed_t))]
+                t, cost = Schedule(means,SCVs,omega,fixed_inter_times,min_time_next,k,u)
 
-    df = pd.DataFrame({r'Client (\(i\))': list(np.arange(1,len(x)+1)),
-        r'Interarrival time (\(x_i\))': [f'{np.round(i,4):.4f}' for i in x],
-        r'Arrival time (\(t_i\))': [f'{np.round(i,4):.4f}' for i in np.cumsum(x)]})
 
-    figure = go.Figure(data=[go.Scatter(x=df.iloc[:,0], y=x, marker={'color': '#242582'})],
-        layout=go.Layout(
-            title=go.layout.Title(text=r'$\text{Optimal interarrival times } (x_i)$', x=0.5, xanchor='center'), # Plotly 4
-            # title=r'$\text{Optimal interarrival times } (x_i)$', # Plotly 2
-            xaxis={'title': r'$\text{Client } (i)$', 'tick0': 1, 'dtick': 1, 'range': [0.7,len(x) + 0.3]},
-            yaxis={'title': r'$\text{Interarrival time } (x_i)$'},
-            paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)'))
+        inter_t = [t[0]] + list(np.diff(t))
+        df = pd.DataFrame({r'Client (\(i\))': list(np.arange(n+1-len(t),n+1)),
+            r'Interarrival time (\(x_i\))': [f'{np.round(i,4):.4f}' for i in inter_t],
+            r'Arrival time (\(t_i\))': [f'{np.round(i,4):.4f}' for i in t]})
 
-    columns = [{'name': [f'Appointment Schedule (Cost: {y * mean:.4f})', k], 'id': k} for k in df.columns]
+        figure = go.Figure(data=[go.Scatter(x=df.iloc[:,0], y=inter_t, marker={'color': '#242582'},
+            showlegend=False, name='Interarrival time')],
+            layout=go.Layout(
+                title=go.layout.Title(text='Optimal interarrival times', x=0.5, xanchor='center'), # Plotly 4
+                xaxis={'title': 'Client', 'tick0': 1, 'dtick': 1},
+                yaxis={'title': 'Interarrival time'},
+                paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)'))
+
+        m = len(fixed_t)
+        if m:
+            figure.add_trace(go.Scatter(x=list(range(k+1,k+m+1)), y=inter_t[:m], marker=dict(
+                color='#dce9f9'),
+                showlegend=False,
+                name='Fixed interarrival time'
+            ))
+
+        columns = [{'name': [f'Appointment Schedule (Cost: {cost:.4f})', k], 'id': k} for k in df.columns]
 
     return columns, df.to_dict('records'), figure
 
@@ -216,4 +304,4 @@ def updateTable(n_clicks, mean, SCV, omega, n, wis, u):
 app.layout = app_layout
 
 if __name__ == '__main__':
-  app.run_server()
+    app.run_server()
